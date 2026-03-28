@@ -12,17 +12,25 @@ export default function InquiryResponseForm({
   const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [action, setAction] = useState<"accepted" | "declined" | null>(null)
+  const [showDeclineReason, setShowDeclineReason] = useState(false)
 
-  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault()
-    if (!action) return
+  async function handleRespond(responseAction: "accepted" | "declined") {
+    const form = document.getElementById("inquiry-response-form") as HTMLFormElement
+    const formData = new FormData(form)
+
+    if (responseAction === "declined") {
+      const reason = formData.get("decline_reason") as string
+      if (!reason) {
+        setShowDeclineReason(true)
+        setError("Please provide a decline reason")
+        return
+      }
+    }
 
     setLoading(true)
     setError(null)
 
-    const formData = new FormData(e.currentTarget)
-    const result = await respondToInquiry(inquiryId, action, {
+    const result = await respondToInquiry(inquiryId, responseAction, {
       response_message: (formData.get("response_message") as string) || undefined,
       decline_reason: (formData.get("decline_reason") as string) || undefined,
     })
@@ -47,7 +55,7 @@ export default function InquiryResponseForm({
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form id="inquiry-response-form" className="space-y-4">
         <div>
           <label className="mb-1 block text-sm font-medium">
             Response Message (optional)
@@ -60,14 +68,13 @@ export default function InquiryResponseForm({
           />
         </div>
 
-        {action === "declined" && (
+        {showDeclineReason && (
           <div>
             <label className="mb-1 block text-sm font-medium">
               Decline Reason *
             </label>
             <textarea
               name="decline_reason"
-              required
               rows={2}
               className="w-full rounded-md border px-3 py-2 text-sm"
               placeholder="Please provide a reason for declining..."
@@ -77,20 +84,26 @@ export default function InquiryResponseForm({
 
         <div className="flex gap-3">
           <button
-            type="submit"
+            type="button"
             disabled={loading}
-            onClick={() => setAction("accepted")}
+            onClick={() => handleRespond("accepted")}
             className="rounded-md bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700 disabled:opacity-50"
           >
-            {loading && action === "accepted" ? "Accepting..." : "Accept"}
+            {loading ? "Accepting..." : "Accept"}
           </button>
           <button
-            type={action === "declined" ? "submit" : "button"}
+            type="button"
             disabled={loading}
-            onClick={() => setAction("declined")}
+            onClick={() => {
+              if (!showDeclineReason) {
+                setShowDeclineReason(true)
+              } else {
+                handleRespond("declined")
+              }
+            }}
             className="rounded-md border border-red-200 bg-red-50 px-4 py-2 text-sm font-medium text-red-700 hover:bg-red-100 disabled:opacity-50"
           >
-            {loading && action === "declined" ? "Declining..." : "Decline"}
+            {loading ? "Declining..." : "Decline"}
           </button>
         </div>
       </form>

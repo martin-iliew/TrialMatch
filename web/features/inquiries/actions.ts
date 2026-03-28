@@ -12,17 +12,25 @@ export async function sendInquiry(data: {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { error: "Unauthorized" }
 
-  // Load match result and verify it belongs to a trial owned by this sponsor
+  // Load match result
   const { data: matchResult } = await supabase
     .from("match_results")
-    .select("*, trial_projects!inner(id, sponsor_id)")
+    .select("*")
     .eq("id", data.matchResultId)
     .single()
 
   if (!matchResult) return { error: "Match result not found" }
 
-  const trialProject = matchResult.trial_projects as unknown as { id: string; sponsor_id: string }
-  if (trialProject.sponsor_id !== user.id) return { error: "Not authorized" }
+  // Verify the trial project belongs to this sponsor
+  const { data: trialProject } = await supabase
+    .from("trial_projects")
+    .select("id, sponsor_id")
+    .eq("id", matchResult.trial_project_id)
+    .single()
+
+  if (!trialProject || trialProject.sponsor_id !== user.id) {
+    return { error: "Not authorized" }
+  }
 
   if (matchResult.status !== "pending") {
     return { error: "Inquiry already sent for this match" }
@@ -70,17 +78,25 @@ export async function respondToInquiry(
     return { error: "Decline reason is required" }
   }
 
-  // Load inquiry and verify it's for a clinic owned by this user
+  // Load inquiry
   const { data: inquiry } = await supabase
     .from("partnership_inquiries")
-    .select("*, clinics!inner(owner_id)")
+    .select("*")
     .eq("id", inquiryId)
     .single()
 
   if (!inquiry) return { error: "Inquiry not found" }
 
-  const clinic = inquiry.clinics as unknown as { owner_id: string }
-  if (clinic.owner_id !== user.id) return { error: "Not authorized" }
+  // Verify the clinic belongs to this user
+  const { data: clinic } = await supabase
+    .from("clinics")
+    .select("id, owner_id")
+    .eq("id", inquiry.clinic_id)
+    .single()
+
+  if (!clinic || clinic.owner_id !== user.id) {
+    return { error: "Not authorized" }
+  }
 
   if (inquiry.status !== "pending") {
     return { error: "Inquiry has already been responded to" }

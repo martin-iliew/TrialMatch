@@ -15,7 +15,6 @@ export async function getClinicForUser(userId: string) {
 export async function getInquiriesForClinic(clinicId: string) {
   const supabase = await createServerClient()
 
-  // Load inquiries with related trial project info and sponsor name
   const { data: inquiries, error } = await supabase
     .from("partnership_inquiries")
     .select("*")
@@ -25,12 +24,40 @@ export async function getInquiriesForClinic(clinicId: string) {
   if (error) return { data: [], error: error.message }
   if (!inquiries || inquiries.length === 0) return { data: [], error: null }
 
-  // Load match results for these inquiries
-  const matchResultIds = inquiries.map((i) => i.match_result_id)
+  // Load match results
+  const matchResultIds = [...new Set(inquiries.map((i) => i.match_result_id))]
   const { data: matchResults } = await supabase
     .from("match_results")
-    .select("*, trial_projects(title, phase, patient_count, start_date, end_date, therapeutic_areas(name))")
+    .select("*")
     .in("id", matchResultIds)
+
+  // Load trial projects from match results
+  const trialProjectIds = [...new Set(
+    (matchResults ?? []).map((m) => m.trial_project_id)
+  )]
+  const { data: trialProjects } = trialProjectIds.length > 0
+    ? await supabase.from("trial_projects").select("*").in("id", trialProjectIds)
+    : { data: [] }
+
+  // Load therapeutic areas for trial projects
+  const areaIds = [...new Set(
+    (trialProjects ?? []).map((t) => t.therapeutic_area_id).filter(Boolean) as string[]
+  )]
+  const { data: areas } = areaIds.length > 0
+    ? await supabase.from("therapeutic_areas").select("id, name").in("id", areaIds)
+    : { data: [] }
+
+  const areaMap = new Map((areas ?? []).map((a) => [a.id, a.name]))
+  const trialMap = new Map((trialProjects ?? []).map((t) => [t.id, {
+    ...t,
+    therapeutic_areas: t.therapeutic_area_id
+      ? { name: areaMap.get(t.therapeutic_area_id) ?? null }
+      : null,
+  }]))
+  const matchMap = new Map((matchResults ?? []).map((m) => [m.id, {
+    ...m,
+    trial_projects: trialMap.get(m.trial_project_id) ?? null,
+  }]))
 
   // Load sponsor profiles
   const sponsorIds = [...new Set(inquiries.map((i) => i.sponsor_id))]
@@ -39,8 +66,6 @@ export async function getInquiriesForClinic(clinicId: string) {
     .select("id, first_name, last_name")
     .in("id", sponsorIds)
 
-  // Merge data
-  const matchMap = new Map((matchResults ?? []).map((m) => [m.id, m]))
   const sponsorMap = new Map((sponsors ?? []).map((s) => [s.id, s]))
 
   const enriched = inquiries.map((inquiry) => ({
@@ -64,25 +89,50 @@ export async function getInquiryDetail(inquiryId: string, clinicId: string) {
 
   if (error || !inquiry) return { data: null, error: error?.message ?? "Not found" }
 
-  // Load related data
-  const [matchRes, sponsorRes] = await Promise.all([
-    supabase
-      .from("match_results")
-      .select("*, trial_projects(title, description, phase, patient_count, start_date, end_date, geographic_preference, therapeutic_areas(name))")
-      .eq("id", inquiry.match_result_id)
-      .single(),
-    supabase
-      .from("profiles")
-      .select("id, first_name, last_name")
-      .eq("id", inquiry.sponsor_id)
-      .single(),
-  ])
+  // Load match result
+  const { data: matchResult } = await supabase
+    .from("match_results")
+    .select("*")
+    .eq("id", inquiry.match_result_id)
+    .single()
+
+  // Load trial project
+  let trialProject = null
+  if (matchResult) {
+    const { data: tp } = await supabase
+      .from("trial_projects")
+      .select("*")
+      .eq("id", matchResult.trial_project_id)
+      .single()
+
+    if (tp) {
+      let therapeuticArea: { name: string } | null = null
+      if (tp.therapeutic_area_id) {
+        const { data: area } = await supabase
+          .from("therapeutic_areas")
+          .select("name")
+          .eq("id", tp.therapeutic_area_id)
+          .single()
+        if (area) therapeuticArea = area
+      }
+      trialProject = { ...tp, therapeutic_areas: therapeuticArea }
+    }
+  }
+
+  // Load sponsor
+  const { data: sponsor } = await supabase
+    .from("profiles")
+    .select("id, first_name, last_name")
+    .eq("id", inquiry.sponsor_id)
+    .single()
 
   return {
     data: {
       ...inquiry,
-      match_result: matchRes.data ?? null,
-      sponsor: sponsorRes.data ?? null,
+      match_result: matchResult
+        ? { ...matchResult, trial_projects: trialProject }
+        : null,
+      sponsor: sponsor ?? null,
     },
     error: null,
   }

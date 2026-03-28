@@ -153,7 +153,6 @@ export async function POST(request: NextRequest) {
 
   // Build area name → id map for therapeutic_area requirement matching
   const areaNameToId = new Map(areas.map((a) => [a.name.toLowerCase(), a.id]))
-  const areaIdToName = new Map(areas.map((a) => [a.id, a.name]))
 
   // Group related data by clinic_id
   const clinicProfiles: ClinicProfile[] = clinics.map((clinic) => ({
@@ -191,7 +190,8 @@ export async function POST(request: NextRequest) {
           )) return false
           break
         case "capacity":
-          if (!cp.availability || cp.availability.capacity < parseInt(req.value, 10)) return false
+          const reqCapacity = parseInt(req.value, 10)
+          if (isNaN(reqCapacity) || !cp.availability || cp.availability.capacity < reqCapacity) return false
           break
         case "geographic":
           if (cp.clinic.city.toLowerCase() !== req.value.toLowerCase()) return false

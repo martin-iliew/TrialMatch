@@ -31,9 +31,8 @@ export default function RunMatchButton({ projectId }: { projectId: string }) {
     } else {
       setError("No clinics match your required criteria. Try adjusting your requirements.")
       setLoading(false)
+      router.refresh()
     }
-
-    router.refresh()
   }
 
   return (

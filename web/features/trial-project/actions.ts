@@ -108,15 +108,23 @@ export async function deleteRequirement(id: string, trialProjectId: string) {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { error: "Unauthorized" }
 
-  // Verify ownership via join
-  const { data: project } = await supabase
-    .from("trial_projects")
-    .select("id, trial_requirements!inner(id)")
-    .eq("sponsor_id", user.id)
-    .eq("trial_requirements.id", id)
+  // Verify ownership: load requirement, then check project ownership
+  const { data: requirement } = await supabase
+    .from("trial_requirements")
+    .select("id, trial_project_id")
+    .eq("id", id)
     .single()
 
-  if (!project) return { error: "Requirement not found or not authorized" }
+  if (!requirement) return { error: "Requirement not found" }
+
+  const { data: project } = await supabase
+    .from("trial_projects")
+    .select("id")
+    .eq("id", requirement.trial_project_id)
+    .eq("sponsor_id", user.id)
+    .single()
+
+  if (!project) return { error: "Not authorized" }
 
   const { error } = await supabase
     .from("trial_requirements")

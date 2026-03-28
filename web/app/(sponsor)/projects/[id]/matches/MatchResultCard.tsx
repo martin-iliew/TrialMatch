@@ -28,7 +28,7 @@ function scoreColor(score: number, max: number): string {
   return "bg-red-500"
 }
 
-const inquiryStatusColors: Record<string, string> = {
+const statusColors: Record<string, string> = {
   pending: "bg-yellow-100 text-yellow-800",
   inquiry_sent: "bg-blue-100 text-blue-800",
   accepted: "bg-green-100 text-green-800",
@@ -52,7 +52,7 @@ export default function MatchResultCard({
   const [showInquiryForm, setShowInquiryForm] = useState(false)
   const [sending, setSending] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [sent, setSent] = useState(matchResult.status !== "pending")
+  const [sent, setSent] = useState(Boolean(inquiry) || matchResult.status !== "pending")
 
   async function handleSend(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -119,7 +119,7 @@ export default function MatchResultCard({
       <div className="mt-4 border-t pt-3">
         {sent || inquiry ? (
           <div className="flex items-center gap-2">
-            <Badge className={inquiryStatusColors[inquiry?.status ?? matchResult.status] ?? ""}>
+            <Badge className={statusColors[inquiry?.status ?? matchResult.status] ?? ""}>
               {inquiry?.status === "accepted"
                 ? "Accepted"
                 : inquiry?.status === "declined"

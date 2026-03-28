@@ -9,23 +9,31 @@ export default async function ClinicsPage() {
     .select("id, name, city, description")
     .order("name")
 
-  // Load specializations for all clinics
+  // Load specializations for all clinics (separate queries to avoid FK join issues)
   const clinicIds = (clinics ?? []).map((c) => c.id)
+
   const { data: specs } = clinicIds.length > 0
     ? await supabase
         .from("clinic_specializations")
-        .select("clinic_id, therapeutic_areas(name)")
+        .select("clinic_id, therapeutic_area_id")
         .in("clinic_id", clinicIds)
-    : { data: [] }
+    : { data: [] as { clinic_id: string; therapeutic_area_id: string }[] }
+
+  const areaIds = [...new Set((specs ?? []).map((s) => s.therapeutic_area_id))]
+  const { data: areas } = areaIds.length > 0
+    ? await supabase.from("therapeutic_areas").select("id, name").in("id", areaIds)
+    : { data: [] as { id: string; name: string }[] }
+
+  const areaNameMap = new Map((areas ?? []).map((a) => [a.id, a.name]))
 
   // Group specializations by clinic, limit to 3
   const specsByClinic = new Map<string, string[]>()
   for (const spec of specs ?? []) {
-    const area = spec.therapeutic_areas as { name: string } | null
-    if (!area) continue
+    const areaName = areaNameMap.get(spec.therapeutic_area_id)
+    if (!areaName) continue
     const existing = specsByClinic.get(spec.clinic_id) ?? []
     if (existing.length < 3) {
-      existing.push(area.name)
+      existing.push(areaName)
       specsByClinic.set(spec.clinic_id, existing)
     }
   }
