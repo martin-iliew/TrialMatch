@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(cat:*)",
+      "Bash(tree -L 3 /c/Users/TenchoBostandzhiev/source/GitHub -Tencho Bostandzhiev/TrialMatch/src -I node_modules)",
+      "Bash(npm init:*)"
+    ]
+  }
+}
