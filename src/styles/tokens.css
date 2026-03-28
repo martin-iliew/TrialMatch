@@ -131,7 +131,7 @@
 ─────────────────────────────────────────────────────────────── */
 
 :root {
-  /* black alpha ramp */
+  /* ── black alpha ramp ── */
   --black-0: oklch(0 0 0 / 0);
   --black-50: oklch(0 0 0 / 0.05);
   --black-100: oklch(0 0 0 / 0.1);
@@ -146,7 +146,7 @@
   --black-950: oklch(0 0 0 / 0.95);
   --black-1000: oklch(0 0 0 / 1);
 
-  /* white alpha ramp */
+  /* ── white alpha ramp ── */
   --white-0: oklch(1 0 0 / 0);
   --white-50: oklch(1 0 0 / 0.05);
   --white-100: oklch(1 0 0 / 0.1);
@@ -161,36 +161,51 @@
   --white-950: oklch(1 0 0 / 0.95);
   --white-1000: oklch(1 0 0 / 1);
 
-  /* neutral */
+  /* ── neutral  (cool-tinted to sit with teal primary) ── */
   --neutral-0: oklch(1 0 0);
-  --neutral-50: oklch(0.99 0.002 95.1);
-  --neutral-100: oklch(0.98 0.00539 95.1);
-  --neutral-200: oklch(0.95 0.01 95);
-  --neutral-300: oklch(0.92 0.006 85);
-  --neutral-400: oklch(0.86 0.005 85);
-  --neutral-500: oklch(0.78 0.004 85);
-  --neutral-600: oklch(0.68 0.004 85);
-  --neutral-700: oklch(0.58 0.003 85);
-  --neutral-800: oklch(0.44 0.003 85);
-  --neutral-900: oklch(0.24 0.003 95.1);
-  --neutral-950: oklch(0.2 0.005 80.72);
-  --neutral-1000: oklch(0.14 0 0);
+  --neutral-50: oklch(0.99 0.002 210);
+  --neutral-100: oklch(0.97 0.005 210);
+  --neutral-200: oklch(0.94 0.008 210);
+  --neutral-300: oklch(0.91 0.006 210);
+  --neutral-400: oklch(0.85 0.005 210);
+  --neutral-500: oklch(0.77 0.004 210);
+  --neutral-600: oklch(0.67 0.004 210);
+  --neutral-700: oklch(0.57 0.003 210);
+  --neutral-800: oklch(0.43 0.003 210);
+  --neutral-900: oklch(0.23 0.003 210);
+  --neutral-950: oklch(0.19 0.005 210);
+  --neutral-1000: oklch(0.13 0.005 220);
 
-  /* primary */
-  --primary-50: oklch(0.98 0.01 95);
-  --primary-100: oklch(0.95 0.015 95);
-  --primary-200: oklch(0.9 0.025 95);
-  --primary-300: oklch(0.83 0.04 95);
-  --primary-400: oklch(0.75 0.055 95);
-  --primary-500: oklch(0.66 0.07 95);
-  --primary-600: oklch(0.57 0.08 95);
-  --primary-700: oklch(0.48 0.07 95);
-  --primary-800: oklch(0.39 0.06 95);
-  --primary-900: oklch(0.3 0.05 95);
-  --primary-950: oklch(0.22 0.04 95);
-  --primary-200-a60: oklch(0.9 0.025 95 / 0.6);
+  /* ── primary  –  clinical teal (trust · care · precision) ── */
+  --primary-50: oklch(0.98 0.012 178);
+  --primary-100: oklch(0.95 0.028 178);
+  --primary-200: oklch(0.9 0.055 178);
+  --primary-300: oklch(0.83 0.09 178);
+  --primary-400: oklch(0.75 0.115 178);
+  --primary-500: oklch(0.66 0.12 178);
+  --primary-600: oklch(0.57 0.11 178);
+  --primary-700: oklch(0.48 0.09 178);
+  --primary-800: oklch(0.39 0.075 178);
+  --primary-900: oklch(0.3 0.058 178);
+  --primary-950: oklch(0.22 0.042 178);
+  --primary-200-a60: oklch(0.9 0.055 178 / 0.6);
 
-  /* orange */
+  /* ── accent  –  data indigo (intelligence · insight · tech) ── */
+  --accent-50: oklch(0.98 0.012 275);
+  --accent-100: oklch(0.95 0.025 275);
+  --accent-200: oklch(0.9 0.048 275);
+  --accent-300: oklch(0.83 0.085 275);
+  --accent-400: oklch(0.75 0.13 275);
+  --accent-500: oklch(0.66 0.17 275);
+  --accent-600: oklch(0.57 0.2 275);
+  --accent-700: oklch(0.48 0.19 275);
+  --accent-800: oklch(0.39 0.155 275);
+  --accent-900: oklch(0.3 0.12 275);
+  --accent-950: oklch(0.22 0.085 275);
+  --accent-700-a80: oklch(0.48 0.19 275 / 0.8);
+  --accent-700-a70: oklch(0.48 0.19 275 / 0.7);
+
+  /* ── orange  –  enrollment warning ── */
   --orange-50: oklch(0.97 0.02 70);
   --orange-100: oklch(0.94 0.04 68);
   --orange-200: oklch(0.9 0.069 65);
@@ -205,108 +220,140 @@
   --orange-700-a90: oklch(0.48 0.132 47 / 0.9);
   --orange-700-a70: oklch(0.48 0.132 47 / 0.7);
 
-  /* green */
-  --green-50: oklch(0.97 0.02 160);
-  --green-100: oklch(0.94 0.05 159);
-  --green-200: oklch(0.9 0.09 158);
-  --green-300: oklch(0.83 0.15 157);
-  --green-400: oklch(0.75 0.181 156);
-  --green-500: oklch(0.66 0.162 155);
-  --green-600: oklch(0.57 0.143 154);
-  --green-700: oklch(0.48 0.123 153);
-  --green-800: oklch(0.39 0.1 153);
-  --green-900: oklch(0.3 0.075 154);
-  --green-950: oklch(0.22 0.054 155);
-  --green-700-a90: oklch(0.48 0.123 153 / 0.9);
-  --green-700-a70: oklch(0.48 0.123 153 / 0.7);
+  /* ── green  –  matched / approved / success ── */
+  --green-50: oklch(0.97 0.02 155);
+  --green-100: oklch(0.94 0.05 155);
+  --green-200: oklch(0.9 0.09 155);
+  --green-300: oklch(0.83 0.14 155);
+  --green-400: oklch(0.75 0.17 155);
+  --green-500: oklch(0.66 0.155 155);
+  --green-600: oklch(0.57 0.138 155);
+  --green-700: oklch(0.48 0.118 155);
+  --green-800: oklch(0.39 0.096 155);
+  --green-900: oklch(0.3 0.073 155);
+  --green-950: oklch(0.22 0.052 155);
+  --green-700-a90: oklch(0.48 0.118 155 / 0.9);
+  --green-700-a70: oklch(0.48 0.118 155 / 0.7);
 
-  /* red */
-  --red-50: oklch(0.97 0.01 25);
-  --red-100: oklch(0.94 0.03 25);
-  --red-200: oklch(0.9 0.051 25);
-  --red-300: oklch(0.83 0.094 25);
-  --red-400: oklch(0.75 0.15 25);
-  --red-500: oklch(0.66 0.2 25);
-  --red-600: oklch(0.57 0.22 25);
-  --red-700: oklch(0.48 0.19 25);
-  --red-800: oklch(0.39 0.157 25);
-  --red-900: oklch(0.3 0.12 25);
-  --red-950: oklch(0.22 0.089 25);
-  --red-700-a90: oklch(0.48 0.19 25 / 0.9);
-  --red-700-a70: oklch(0.48 0.19 25 / 0.7);
+  /* ── red  –  declined / critical / error ── */
+  --red-50: oklch(0.97 0.01 20);
+  --red-100: oklch(0.94 0.03 20);
+  --red-200: oklch(0.9 0.051 20);
+  --red-300: oklch(0.83 0.094 20);
+  --red-400: oklch(0.75 0.15 20);
+  --red-500: oklch(0.66 0.2 20);
+  --red-600: oklch(0.57 0.22 20);
+  --red-700: oklch(0.48 0.19 20);
+  --red-800: oklch(0.39 0.157 20);
+  --red-900: oklch(0.3 0.12 20);
+  --red-950: oklch(0.22 0.089 20);
+  --red-700-a90: oklch(0.48 0.19 20 / 0.9);
+  --red-700-a70: oklch(0.48 0.19 20 / 0.7);
 
-  /* blue */
-  --blue-50: oklch(0.97 0.014 255);
-  --blue-100: oklch(0.94 0.028 256);
-  --blue-200: oklch(0.9 0.048 258);
-  --blue-300: oklch(0.83 0.084 259);
-  --blue-400: oklch(0.75 0.128 261);
-  --blue-500: oklch(0.66 0.18 262);
-  --blue-600: oklch(0.57 0.235 263);
-  --blue-700: oklch(0.48 0.278 264);
-  --blue-800: oklch(0.39 0.226 264);
-  --blue-900: oklch(0.3 0.17 264);
-  --blue-950: oklch(0.22 0.12 265);
-  --blue-700-a80: oklch(0.48 0.278 264 / 0.8);
-  --blue-700-a70: oklch(0.48 0.278 264 / 0.7);
+  /* ── blue  –  info / links / focus rings ── */
+  --blue-50: oklch(0.97 0.014 250);
+  --blue-100: oklch(0.94 0.028 250);
+  --blue-200: oklch(0.9 0.048 252);
+  --blue-300: oklch(0.83 0.084 254);
+  --blue-400: oklch(0.75 0.128 256);
+  --blue-500: oklch(0.66 0.175 258);
+  --blue-600: oklch(0.57 0.22 260);
+  --blue-700: oklch(0.48 0.2 262);
+  --blue-800: oklch(0.39 0.165 262);
+  --blue-900: oklch(0.3 0.125 262);
+  --blue-950: oklch(0.22 0.09 262);
+  --blue-700-a80: oklch(0.48 0.2 262 / 0.8);
+  --blue-700-a70: oklch(0.48 0.2 262 / 0.7);
 }
 
 /* ───────────────────────────────────────────────────────────────
    7. Semantic tokens (light)
-─────────────────────────────────────────────────────────────── */
+   ─────────────────────────────────────────────────────────────── */
+
 :root {
-  /* Backgrounds */
+  /* ── Backgrounds ── */
   --bg-default: var(--neutral-0);
   --bg-subtle: var(--neutral-100);
   --bg-muted: var(--neutral-200);
   --bg-inverse: var(--neutral-1000);
   --scrim-primary: var(--black-600);
 
-  /* Surfaces */
+  /* ── Surfaces ── */
   --surface-level-0: var(--neutral-0);
   --surface-level-1: var(--neutral-50);
   --surface-level-2: var(--neutral-100);
   --surface-level-3: var(--neutral-200);
   --surface-level-4: var(--neutral-300);
   --surface-level-5: var(--neutral-400);
+
   --surface-status-danger: var(--red-100);
   --surface-status-warning: var(--orange-100);
   --surface-status-success: var(--green-100);
   --surface-status-info: var(--blue-100);
 
-  /* Text */
+  /* ── Text ── */
   --text-primary: var(--black-950);
   --text-secondary: var(--black-600);
   --text-tertiary: var(--black-300);
-  --text-accent: var(--primary-200);
   --text-inverse: var(--white-1000);
+  --text-disabled: var(--black-200);
+  --text-link: var(--primary-600);
+  --text-link-hover: var(--primary-700);
 
-  /* Borders */
+  /* ── Borders ── */
   --border-primary: var(--neutral-300);
+  --border-subtle: var(--neutral-200);
+  --border-strong: var(--neutral-400);
+  --border-disabled: var(--neutral-200);
+  --border-focus: var(--primary-500);
+
   --border-status-danger: var(--red-300);
   --border-status-warning: var(--orange-300);
   --border-status-success: var(--green-300);
   --border-status-info: var(--blue-300);
 
-  /* Icons */
+  /* ── Icons ── */
   --icon-primary: var(--black-800);
   --icon-secondary: var(--black-500);
   --icon-tertiary: var(--black-300);
+  --icon-disabled: var(--black-200);
+
   --icon-status-danger: var(--red-700);
   --icon-status-warning: var(--orange-700);
   --icon-status-success: var(--green-700);
   --icon-status-info: var(--blue-700);
 
-  /* Brand (electric indigo) */
-  --bg-brand: var(--blue-600);
-  --bg-brand-hover: var(--blue-700);
-  --bg-brand-light: var(--blue-50);
-  --border-brand: var(--blue-400);
+  /* ── Brand (clinical teal) ── */
+  --bg-brand: var(--primary-600);
+  --bg-brand-hover: var(--primary-700);
+  --bg-brand-active: var(--primary-800);
+  --bg-brand-light: var(--primary-50);
+  --border-brand: var(--primary-400);
   --text-on-brand: var(--white-1000);
-  --text-brand: var(--blue-600);
+  --text-brand: var(--primary-600);
+  --text-brand-hover: var(--primary-700);
 
-  /* Focus ring */
-  --focus-ring-color: var(--blue-500);
+  /* ── Accent (data indigo — scores, algorithm, analytics) ── */
+  --bg-accent: var(--accent-600);
+  --bg-accent-hover: var(--accent-700);
+  --bg-accent-light: var(--accent-50);
+  --border-accent: var(--accent-300);
+  --text-on-accent: var(--white-1000);
+  --text-accent: var(--accent-600);
+
+  /* ── Disabled ── */
+  --bg-disabled: var(--neutral-100);
+  --border-disabled: var(--neutral-200);
+  --text-disabled: var(--black-200);
+
+  /* ── Interactive surface states (cards, rows, list items) ── */
+  --surface-hover: var(--neutral-50);
+  --surface-active: var(--neutral-100);
+  --surface-selected: var(--primary-50);
+  --border-selected: var(--primary-300);
+
+  /* ── Focus ring ── */
+  --focus-ring-color: var(--primary-500);
   --focus-ring-width: 2px;
   --focus-ring-offset: 2px;
   --focus-ring-style: var(--focus-ring-width) solid var(--focus-ring-color);
@@ -323,7 +370,7 @@
     0 0 0 calc(var(--focus-ring-offset) + var(--focus-ring-width))
       var(--green-500);
 
-  /* Shadows */
+  /* ── Shadows ── */
   --shadow-color: var(--black-100);
   --shadow-color-strong: var(--black-200);
   --shadow-xs: 0 1px 2px var(--shadow-color);
@@ -340,64 +387,95 @@
 }
 
 /* ───────────────────────────────────────────────────────────────
-   5. Semantic tokens (dark)
-─────────────────────────────────────────────────────────────── */
+   8. Semantic tokens (dark)
+   ─────────────────────────────────────────────────────────────── */
 
 @custom-variant dark (&:is(.dark *));
 
 .dark {
-  /* Backgrounds */
+  /* ── Backgrounds ── */
   --bg-default: var(--neutral-1000);
   --bg-subtle: var(--neutral-900);
   --bg-muted: var(--neutral-950);
   --bg-inverse: var(--neutral-0);
   --scrim-primary: var(--black-600);
 
-  /* Surfaces */
+  /* ── Surfaces ── */
   --surface-level-0: var(--neutral-1000);
   --surface-level-1: var(--neutral-950);
   --surface-level-2: var(--neutral-900);
   --surface-level-3: var(--neutral-800);
   --surface-level-4: var(--neutral-700);
   --surface-level-5: var(--neutral-600);
+
   --surface-status-danger: var(--red-950);
   --surface-status-warning: var(--orange-950);
   --surface-status-success: var(--green-950);
   --surface-status-info: var(--blue-950);
 
-  /* Text */
+  /* ── Text ── */
   --text-primary: var(--white-1000);
   --text-secondary: var(--white-700);
   --text-tertiary: var(--white-300);
-  --text-accent: var(--primary-200);
   --text-inverse: var(--black-950);
+  --text-disabled: var(--white-200);
+  --text-link: var(--primary-400);
+  --text-link-hover: var(--primary-300);
 
-  /* Borders */
+  /* ── Borders ── */
   --border-primary: var(--neutral-800);
+  --border-subtle: var(--neutral-900);
+  --border-strong: var(--neutral-700);
+  --border-disabled: var(--neutral-900);
+  --border-focus: var(--primary-400);
+
   --border-status-danger: var(--red-800);
   --border-status-warning: var(--orange-800);
   --border-status-success: var(--green-800);
   --border-status-info: var(--blue-800);
 
-  /* Icons */
+  /* ── Icons ── */
   --icon-primary: var(--white-800);
   --icon-secondary: var(--white-500);
   --icon-tertiary: var(--white-300);
+  --icon-disabled: var(--white-200);
+
   --icon-status-danger: var(--red-300);
   --icon-status-warning: var(--orange-300);
   --icon-status-success: var(--green-300);
   --icon-status-info: var(--blue-300);
 
-  /* Brand (electric indigo) */
-  --bg-brand: var(--blue-500);
-  --bg-brand-hover: var(--blue-400);
-  --bg-brand-light: var(--blue-950);
-  --border-brand: var(--blue-600);
+  /* ── Brand (clinical teal) ── */
+  --bg-brand: var(--primary-500);
+  --bg-brand-hover: var(--primary-400);
+  --bg-brand-active: var(--primary-600);
+  --bg-brand-light: var(--primary-950);
+  --border-brand: var(--primary-600);
   --text-on-brand: var(--white-1000);
-  --text-brand: var(--blue-400);
+  --text-brand: var(--primary-400);
+  --text-brand-hover: var(--primary-300);
 
-  /* Focus ring */
-  --focus-ring-color: var(--blue-400);
+  /* ── Accent (data indigo) ── */
+  --bg-accent: var(--accent-500);
+  --bg-accent-hover: var(--accent-400);
+  --bg-accent-light: var(--accent-950);
+  --border-accent: var(--accent-700);
+  --text-on-accent: var(--white-1000);
+  --text-accent: var(--accent-400);
+
+  /* ── Disabled ── */
+  --bg-disabled: var(--neutral-900);
+  --border-disabled: var(--neutral-800);
+  --text-disabled: var(--white-200);
+
+  /* ── Interactive surface states ── */
+  --surface-hover: var(--neutral-950);
+  --surface-active: var(--neutral-900);
+  --surface-selected: var(--primary-950);
+  --border-selected: var(--primary-700);
+
+  /* ── Focus ring ── */
+  --focus-ring-color: var(--primary-400);
   --focus-ring-width: 2px;
   --focus-ring-offset: 2px;
   --focus-ring-style: var(--focus-ring-width) solid var(--focus-ring-color);
@@ -414,7 +492,7 @@
     0 0 0 calc(var(--focus-ring-offset) + var(--focus-ring-width))
       var(--green-400);
 
-  /* Shadows */
+  /* ── Shadows ── */
   --shadow-color: var(--black-400);
   --shadow-color-strong: var(--black-600);
   --shadow-xs: 0 1px 2px var(--shadow-color);
@@ -431,84 +509,104 @@
 }
 
 /* ───────────────────────────────────────────────────────────────
-   6. Tailwind v4 theme bridge
-   
-   Maps semantic tokens → Tailwind namespace.
-   Names here MUST differ from the semantic tokens above
-   to avoid circular var() references.
-─────────────────────────────────────────────────────────────── */
+   9. Tailwind v4 theme bridge
+   ─────────────────────────────────────────────────────────────── */
 
 @theme inline {
+  /* ── Typography ── */
   --font-sans: var(--ff-body);
   --font-display: var(--ff-display);
   --font-body: var(--ff-body);
   --font-code: var(--ff-code);
+
+  /* ── Spacing ── */
   --spacing-section-md: calc(3rem + 3rem * var(--fluid));
   --spacing-section-lg: calc(4rem + 8rem * var(--fluid));
   --spacing-container-padding: calc(1rem + 1.5rem * var(--fluid));
 
-  --font-size-title-page: clamp(3rem, 1.714rem + 6.43vw, 7.5rem);
-  --font-size-display-page: clamp(2.25rem, 1.286rem + 4.82vw, 5.625rem);
-  --font-size-display: clamp(2.25rem, 1.464rem + 3.93vw, 5rem);
-  --font-size-section-title: clamp(1.75rem, 1.179rem + 2.86vw, 3.75rem);
-  --font-size-headline: clamp(1.5rem, 1.071rem + 2.14vw, 3rem);
-  --font-size-subtitle-page: clamp(1rem, 0.714rem + 1.43vw, 2rem);
-  --font-size-title: clamp(1.25rem, 0.893rem + 1.79vw, 2.5rem);
-  --font-size-subtitle: clamp(1rem, 0.929rem + 0.36vw, 1.25rem);
-  --font-size-body: clamp(1rem, 0.964rem + 0.18vw, 1.125rem);
-  --font-size-body-small: clamp(0.875rem, 0.839rem + 0.18vw, 1rem);
-  --font-size-label: clamp(0.875rem, 0.839rem + 0.18vw, 1rem);
-  --font-size-caption: clamp(0.8125rem, 0.795rem + 0.09vw, 0.875rem);
-  --font-size-overline: clamp(0.75rem, 0.732rem + 0.09vw, 0.8125rem);
-  --font-size-code: clamp(0.875rem, 0.839rem + 0.18vw, 1rem);
-
+  /* ── Backgrounds ── */
   --background-color-default: var(--bg-default);
   --background-color-subtle: var(--bg-subtle);
   --background-color-muted: var(--bg-muted);
   --background-color-inverse: var(--bg-inverse);
   --background-color-scrim-primary: var(--scrim-primary);
+  --background-color-disabled: var(--bg-disabled);
 
+  /* ── Surfaces ── */
   --color-surface-level-0: var(--surface-level-0);
   --color-surface-level-1: var(--surface-level-1);
   --color-surface-level-2: var(--surface-level-2);
   --color-surface-level-3: var(--surface-level-3);
   --color-surface-level-4: var(--surface-level-4);
   --color-surface-level-5: var(--surface-level-5);
+
+  --color-surface-hover: var(--surface-hover);
+  --color-surface-active: var(--surface-active);
+  --color-surface-selected: var(--surface-selected);
+
   --color-surface-status-danger: var(--surface-status-danger);
   --color-surface-status-warning: var(--surface-status-warning);
   --color-surface-status-success: var(--surface-status-success);
   --color-surface-status-info: var(--surface-status-info);
 
+  /* ── Text ── */
   --text-color-primary: var(--text-primary);
   --text-color-secondary: var(--text-secondary);
   --text-color-tertiary: var(--text-tertiary);
-  --text-color-accent: var(--text-accent);
   --text-color-inverse: var(--text-inverse);
+  --text-color-disabled: var(--text-disabled);
+  --text-color-link: var(--text-link);
+  --text-color-link-hover: var(--text-link-hover);
+  --text-color-accent: var(--text-accent);
 
+  /* ── Borders ── */
   --border-color-primary: var(--border-primary);
+  --border-color-subtle: var(--border-subtle);
+  --border-color-strong: var(--border-strong);
+  --border-color-disabled: var(--border-disabled);
+  --border-color-focus: var(--border-focus);
+  --border-color-selected: var(--border-selected);
+
   --border-color-status-danger: var(--border-status-danger);
   --border-color-status-warning: var(--border-status-warning);
   --border-color-status-success: var(--border-status-success);
   --border-color-status-info: var(--border-status-info);
 
-  --icon-primary: var(--icon-primary);
-  --icon-secondary: var(--icon-secondary);
-  --icon-tertiary: var(--icon-tertiary);
-  --icon-status-danger: var(--icon-status-danger);
-  --icon-status-warning: var(--icon-status-warning);
-  --icon-status-success: var(--icon-status-success);
-  --icon-status-info: var(--icon-status-info);
+  /* ── Icons ── */
+  --icon-color-primary: var(--icon-primary);
+  --icon-color-secondary: var(--icon-secondary);
+  --icon-color-tertiary: var(--icon-tertiary);
+  --icon-color-disabled: var(--icon-disabled);
 
+  --icon-color-status-danger: var(--icon-status-danger);
+  --icon-color-status-warning: var(--icon-status-warning);
+  --icon-color-status-success: var(--icon-status-success);
+  --icon-color-status-info: var(--icon-status-info);
+
+  /* ── Brand ── */
   --background-color-brand: var(--bg-brand);
+  --background-color-brand-hover: var(--bg-brand-hover);
+  --background-color-brand-active: var(--bg-brand-active);
   --background-color-brand-light: var(--bg-brand-light);
   --border-color-brand: var(--border-brand);
   --text-color-on-brand: var(--text-on-brand);
   --text-color-brand: var(--text-brand);
+  --text-color-brand-hover: var(--text-brand-hover);
 
+  /* ── Accent ── */
+  --background-color-accent: var(--bg-accent);
+  --background-color-accent-hover: var(--bg-accent-hover);
+  --background-color-accent-light: var(--bg-accent-light);
+  --border-color-accent: var(--border-accent);
+  --text-color-on-accent: var(--text-on-accent);
+  --text-color-accent: var(--text-accent);
+
+  /* ── Focus ── */
   --shadow-focus-ring: var(--focus-ring);
   --shadow-focus-ring-danger: var(--focus-ring-danger);
   --shadow-focus-ring-success: var(--focus-ring-success);
 
+  /* ── Elevation ── */
   --shadow-xs: var(--shadow-xs);
   --shadow-sm: var(--shadow-sm);
   --shadow-md: var(--shadow-md);

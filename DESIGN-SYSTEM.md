@@ -2,7 +2,13 @@
 
 ## Source of Truth
 
-All token definitions live in `styles/tokens.css`. Read that file for exact values. This document explains **how to use** the system, not what every value is.
+All token definitions live in three files:
+
+- **`src/styles/tokens.css`** — color primitives, semantic tokens, spacing, radius, z-index, motion, shadows, focus rings, and the Tailwind v4 theme bridge
+- **`src/styles/typography.css`** — typographic scale (font sizes, line heights, letter spacing) with responsive breakpoints, and CSS typography classes
+- **`src/components/ui/typography.tsx`** — React components that apply the typography classes
+
+Read those files for exact values. This document explains **how to use** the system, not what every value is.
 
 ---
 
@@ -75,27 +81,117 @@ Pair with matching `border-status-*` and `text-icon-status-*`.
 
 ## Typography
 
-Tokens live in `styles/tokens.css` (section 3). Components live in `components/ui/typography.tsx`.
+Typography is split across two files:
 
-**Page-level primitives:** `DisplayPage`, `TitlePage`, `SubTitlePage`, `SectionTitle`
-**Supporting primitives:** `BodyBase`, `CodeSnippet`
+- **`src/styles/typography.css`** — defines the primitive scale (`--text-*`, `--leading-*`, `--tracking-*` tokens) and CSS classes (`.landing-hero`, `.display-page`, `.heading-1`–`.heading-9`, `.body`, `.body-small`, `.caption`, `.small`, `.label`, `.cta`, `.cta-sm`, `.code`)
+- **`src/components/ui/typography.tsx`** — React components that apply those CSS classes
 
-Rules:
-- Use typography primitives — don't hardcode `text-[...]` or raw `h1`-`h6`/`p` tags in app files
-- Size tokens: `tokens.css` (`--type-size-*`)
-- Leading/tracking/weight/family: `typography.tsx`
-- Need a new treatment? Extend tokens + primitives, don't inline one-off classes
+### Available typography components
+
+| Component | CSS class | Scale token | Typical use |
+|---|---|---|---|
+| `LandingHero` | `.landing-hero` | `--text-landing` | Landing page hero headline |
+| `DisplayPage` | `.display-page` | `--text-9xl` | Hero/display sections |
+| `TitlePage` | `.title-page` | `--text-8xl` | Page title |
+| `Heading1` | `.heading-1` | `--text-7xl` | Top-level section heading |
+| `Heading2` | `.heading-2` | `--text-6xl` | Major section heading |
+| `Heading3` / `SectionTitle` / `Title` | `.heading-3` | `--text-5xl` | Section heading |
+| `Heading4` | `.heading-4` | `--text-4xl` | Sub-section heading |
+| `Heading5` / `SubTitlePage` | `.heading-5` | `--text-3xl` | Page subtitle, card title |
+| `Heading6` | `.heading-6` | `--text-2xl` | Small heading |
+| `Heading7` | `.heading-7` | `--text-xl` | Minor heading |
+| `Heading8` | `.heading-8` | `--text-lg` | List heading, label heading |
+| `Heading9` | `.heading-9` | `--text-md` | Smallest heading |
+| `Body` / `BodyBase` | `.body` | `--text-base` | Body copy |
+| `BodySmall` | `.body-small` | `--text-sm` | Secondary body text |
+| `Caption` | `.caption` | `--text-sm` | Captions, metadata |
+| `Small` | `.small` | `--text-xs` | Fine print, badges |
+| `Label` | `.label` | `--text-sm` | Form labels (weight 500) |
+| `CTA` | `.cta` | `--text-cta` | Button / CTA text |
+| `CTASmall` | `.cta-sm` | `--text-cta-sm` | Small button / CTA text |
+| `CodeSnippet` | `.code` | `--text-sm` | Inline code |
+
+### Responsive behavior
+
+The typographic scale in `typography.css` is **breakpoint-based** (desktop-first):
+
+| Breakpoint | Behavior |
+|---|---|
+| Default (>1600px) | Full desktop scale |
+| `≤1600px` | Landing hero downscaled |
+| `≤1024px` | Full tablet scale — all sizes reduced |
+| `≤767px` | Mobile — landing hero reduced further |
+| `≤425px` | Small mobile — landing hero minimal |
+
+Responsiveness is handled by the CSS variables themselves (they change at breakpoints). You do **not** need responsive Tailwind classes like `md:text-*` — the typography classes adapt automatically.
+
+### Rules
+
+- **Always use the React components** from `typography.tsx` — don't write raw `h1`–`h6`, `p`, `label`, or `code` tags in UI files
+- **Never use raw Tailwind text sizes** (`text-sm`, `text-base`, `text-lg`, `text-[...]`) — use the typography components instead
+- If you need the CSS class directly (rare — e.g., in a non-React context), use the class names from `typography.css` (`.heading-3`, `.body`, etc.)
+- Each CSS class bundles `font-family`, `font-size`, `line-height`, `letter-spacing`, `font-weight`, and `font-variation-settings` — don't override individual properties unless intentional
+- Need a new typographic treatment? Add a token to `typography.css` and a component to `typography.tsx` — don't inline one-off classes
+
+### How to apply text styling (decision order)
+
+Follow this priority order — use the **first option that fits**:
+
+**1. Use a typography React component (preferred)**
+When you control the markup and can wrap text in its own element, always use a component from `typography.tsx`. This is the default for all new text.
+
+```tsx
+// ✅ Correct — component controls the full text treatment
+<Heading5>Clinic Profile</Heading5>
+<Body>Enter your clinic details below.</Body>
+<Caption>Last updated 2 days ago</Caption>
+```
+
+**2. Use a typography CSS class on an existing element**
+When you can't use a typography component — e.g., text lives inside a third-party component, a slot, or an element whose tag you don't control — apply the CSS class directly.
+
+```tsx
+// ✅ Correct — can't wrap in a typography component, so use the class
+<DialogTitle className="heading-6">Edit Equipment</DialogTitle>
+<CardDescription className="body-small">Manage your inventory</CardDescription>
+```
+
+**3. Use the closest matching design token as a Tailwind class (last resort)**
+When neither a component nor a CSS class works — e.g., you need to style a small piece of text inside an already-styled component and the full typography class would override too much — pick the most logical design token. Match by intent, not by exact pixel size.
+
+```tsx
+// ✅ Correct — inside a Button, we just need the size/tracking, not a full typography class
+<button className="font-body text-[length:var(--text-sm)] leading-[var(--leading-sm)] tracking-[var(--tracking-sm)]">
+  Save
+</button>
+```
+
+Use this table to pick the right token:
+
+| Intent | Token group |
+|---|---|
+| Body-sized text | `--text-base`, `--leading-base`, `--tracking-base` |
+| Small/secondary text | `--text-sm`, `--leading-sm`, `--tracking-sm` |
+| Fine print / badge | `--text-xs`, `--leading-xs`, `--tracking-xs` |
+| Medium UI text | `--text-md`, `--leading-md`, `--tracking-md` |
+| Large UI text | `--text-lg`, `--leading-lg`, `--tracking-lg` |
+| CTA / button | `--text-cta`, `--leading-cta`, `--tracking-cta` |
+| Small CTA / button | `--text-cta-sm`, `--leading-cta-sm`, `--tracking-cta-sm` |
+
+**Hard rule:** never use raw Tailwind sizes (`text-sm`, `text-base`, `text-lg`, `text-[14px]`) or raw pixel/rem values. Always go through the token system — either via component, CSS class, or token variable.
 
 ---
 
 ## Fonts
 
 Three font stacks defined in `tokens.css`:
-- `--font-display` — display/heading face (Mpex Sans Rounded)
-- `--font-body` — body face (Mpex Sans)
-- `--font-code` — monospace (JetBrains Mono)
+- `--ff-display` — display/heading face
+- `--ff-body` — body face
+- `--ff-code` — monospace
 
 Tailwind bridge: `font-sans` (body), `font-display`, `font-body`, `font-code`
+
+Heading components (`LandingHero` through `Heading9`) use `--ff-display`. Body components (`Body`, `BodySmall`, `Caption`, `Small`, `Label`, `CTA`, `CTASmall`) use `--ff-body`. `CodeSnippet` uses `--ff-code`.
 
 ---
 
@@ -161,9 +257,9 @@ Every `dark:` prefixed class in a generated shadcn component must be deleted. Th
 
 ---
 
-## Additional Primitives in tokens.css
+## Additional Primitives
 
-These are available but not listed above in detail — check `tokens.css` for values:
+### In `src/styles/tokens.css`
 
 - **Spacing:** `--space-*` (4px grid), `--space-section-md/lg`, `--space-container-padding`
 - **Radius:** `--radius-none` through `--radius-full`
@@ -171,6 +267,14 @@ These are available but not listed above in detail — check `tokens.css` for va
 - **Motion:** `--duration-*`, `--ease-*`, `--transition-*` (auto-disabled on `prefers-reduced-motion`)
 - **Shadows:** `--shadow-xs` through `--shadow-2xl`, `--shadow-inset`
 - **Focus rings:** `--focus-ring`, `--focus-ring-danger`, `--focus-ring-success`
+- **Colors:** all primitive ramps (neutral, primary, accent, orange, green, red, blue, black-alpha, white-alpha)
+- **Semantic tokens:** light + dark mode mappings for backgrounds, surfaces, text, borders, icons, brand, accent, disabled, interactive states
+
+### In `src/styles/typography.css`
+
+- **Type scale tokens:** `--text-*`, `--leading-*`, `--tracking-*` (landing through xs, plus cta variants)
+- **CSS classes:** `.landing-hero`, `.display-page`, `.title-page`, `.heading-1`–`.heading-9`, `.body`, `.body-small`, `.caption`, `.small`, `.label`, `.cta`, `.cta-sm`, `.code`
+- **Responsive breakpoints:** sizes auto-adjust at 1600px, 1024px, 767px, 425px
 
 ---
 
@@ -197,46 +301,62 @@ Every background token has required text and icon pairings. Using the wrong comb
 
 ## Text Size Rules
 
-All text sizes come from `tokens.css` and are exposed as Tailwind utilities through the `@theme inline` bridge.
+All text sizes come from `src/styles/typography.css` as CSS custom properties (`--text-*`, `--leading-*`, `--tracking-*`). They are **not** exposed as Tailwind utilities — instead they are consumed through CSS classes defined in the same file.
 
-**Available size utilities** (mapped from `--type-size-*` tokens):
+**Available scale tokens** (defined in `typography.css`):
 
-| Utility | Token | Type |
+| Token | Desktop size | Used by |
 |---|---|---|
-| `text-display-page` | `--type-size-display-page` | fluid |
-| `text-title-page` | `--type-size-title-page` | fluid |
-| `text-display` | `--type-size-display` | fluid |
-| `text-headline` | `--type-size-headline` | fluid |
-| `text-section-title` | `--type-size-section-title` | fluid |
-| `text-title` | `--type-size-title` | fluid |
-| `text-subtitle-page` | `--type-size-subtitle-page` | fluid |
-| `text-subtitle` | `--type-size-subtitle` | responsive (breakpoint) |
-| `text-body` | `--type-size-body` | responsive (breakpoint) |
-| `text-body-small` | `--type-size-body-small` | responsive (breakpoint) |
-| `text-label` | `--type-size-label` | responsive (breakpoint) |
-| `text-caption` | `--type-size-caption` | responsive (breakpoint) |
-| `text-overline` | `--type-size-overline` | responsive (breakpoint) |
-| `text-code` | `--type-size-code` | responsive (breakpoint) |
+| `--text-landing` | 107px | `.landing-hero` |
+| `--text-9xl` | 148px | `.display-page` |
+| `--text-8xl` | 124px | `.title-page` |
+| `--text-7xl` | 98px | `.heading-1` |
+| `--text-6xl` | 72px | `.heading-2` |
+| `--text-5xl` | 54px | `.heading-3` |
+| `--text-4xl` | 42px | `.heading-4` |
+| `--text-3xl` | 32px | `.heading-5` |
+| `--text-2xl` | 28px | `.heading-6` |
+| `--text-xl` | 24px | `.heading-7` |
+| `--text-lg` | 22px | `.heading-8` |
+| `--text-md` | 20px | `.heading-9` |
+| `--text-base` | 17.5px | `.body`, `.cta` |
+| `--text-sm` | 14.5px | `.body-small`, `.caption`, `.label`, `.code` |
+| `--text-xs` | 12.5px | `.small` |
+| `--text-cta` | 17.5px | `.cta` |
+| `--text-cta-sm` | 14.5px | `.cta-sm` |
+
+Each token also has matching `--leading-*` and `--tracking-*` companions. All three are bundled together in the CSS class — you never need to set them individually.
 
 **Hard rules:**
-- Use these token utilities — never raw `text-sm`, `text-base`, `text-lg`, `text-[...]`, or `sm:text-base`
-- Typography primitives in `typography.tsx` already map to the correct token. Use the primitive, not the raw class
-- If a size doesn't exist, add a token to `tokens.css` and expose it in `@theme inline`
+- Use the React typography components — never raw `text-sm`, `text-base`, `text-lg`, `text-[...]`, or responsive prefixes like `sm:text-base`
+- Typography components already bundle font-family, size, line-height, letter-spacing, weight, and font-variation-settings
+- If a new text size is needed, add the token to `typography.css`, add the CSS class, then add a React component to `typography.tsx`
+- The scale tokens in `typography.css` are **primitives** (like color primitives in `tokens.css`) — they should never be used directly in component code. Always go through the CSS class or React component
 
-**Which primitive for which context:**
+**Which component for which context:**
 
-| Context | Primitive | Size utility used internally |
+| Context | Component | CSS class |
 |---|---|---|
-| Hero/landing display | `DisplayPage` | `text-display-page` |
-| Page title | `TitlePage` | `text-title-page` |
-| Page subtitle | `SubTitlePage` | `text-subtitle-page` |
-| Section heading | `SectionTitle` | `text-section-title` |
-| General heading | `Title` | `text-section-title` |
-| Body copy | `Body`, `BodyBase` | `text-body` |
-| Small body | `BodySmall` | `text-body-small` |
-| Form labels | `Label` | `text-label` |
-| Captions/meta | `Caption` | `text-caption` |
-| Inline code | `CodeSnippet` | inherits parent size |
+| Landing hero headline | `LandingHero` | `.landing-hero` |
+| Hero/display sections | `DisplayPage` | `.display-page` |
+| Page title | `TitlePage` | `.title-page` |
+| Top-level heading | `Heading1` | `.heading-1` |
+| Major section heading | `Heading2` | `.heading-2` |
+| Section heading | `Heading3` / `SectionTitle` / `Title` | `.heading-3` |
+| Sub-section heading | `Heading4` | `.heading-4` |
+| Page subtitle / card title | `Heading5` / `SubTitlePage` | `.heading-5` |
+| Small heading | `Heading6` | `.heading-6` |
+| Minor heading | `Heading7` | `.heading-7` |
+| List/label heading | `Heading8` | `.heading-8` |
+| Smallest heading | `Heading9` | `.heading-9` |
+| Body copy | `Body` / `BodyBase` | `.body` |
+| Secondary body | `BodySmall` | `.body-small` |
+| Captions/meta | `Caption` | `.caption` |
+| Fine print, badges | `Small` | `.small` |
+| Form labels | `Label` | `.label` |
+| Button text | `CTA` | `.cta` |
+| Small button text | `CTASmall` | `.cta-sm` |
+| Inline code | `CodeSnippet` | `.code` |
 
 ---
 
@@ -262,4 +382,5 @@ All text sizes come from `tokens.css` and are exposed as Tailwind utilities thro
 4. No raw values in semantic tokens
 5. When unsure, extend the token system — don't bypass it
 6. **Always check the contrast pairing table** — `bg-inverse` needs `text-inverse`, never `text-primary`
-7. **Always use token size utilities** (`text-body`, `text-label`) — never raw Tailwind sizes (`text-sm`, `text-base`)
+7. **Always use typography React components** (`<Heading3>`, `<Body>`, `<Label>`) — never raw Tailwind sizes (`text-sm`, `text-base`) or raw HTML tags (`h1`–`h6`, `p`)
+8. **Typography tokens live in `typography.css`**, color/spacing/motion tokens live in `tokens.css` — know which file to extend
