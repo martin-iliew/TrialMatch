@@ -27,7 +27,7 @@ test.describe('Route protection (unauthenticated)', () => {
 
   test('allows access to landing page', async ({ page }) => {
     await page.goto('/')
-    await expect(page.getByText('TrialMatch')).toBeVisible()
+    await expect(page.getByText('TrialMatch').first()).toBeVisible()
     expect(page.url()).not.toContain('/login')
   })
 
@@ -38,6 +38,6 @@ test.describe('Route protection (unauthenticated)', () => {
 
   test('allows access to register page', async ({ page }) => {
     await page.goto('/register')
-    await expect(page.getByText('Create account')).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Create account' })).toBeVisible()
   })
 })

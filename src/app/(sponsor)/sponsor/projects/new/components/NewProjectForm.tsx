@@ -17,7 +17,10 @@ const schema = z.object({
   description: z.string().optional(),
   therapeutic_area_id: z.string().optional(),
   phase: z.string().optional(),
-  target_enrollment: z.number().positive().optional(),
+  target_enrollment: z.preprocess(
+    (v) => (v === '' || v === null || (typeof v === 'number' && isNaN(v)) ? undefined : Number(v)),
+    z.number().positive().optional()
+  ),
   start_date: z.string().optional(),
   end_date: z.string().optional(),
   geographic_preference: z.string().optional(),

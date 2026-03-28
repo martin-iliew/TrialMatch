@@ -20,6 +20,10 @@ test.describe('Login page', () => {
 
   test('shows validation error for invalid email', async ({ page }) => {
     await page.goto('/login')
+    // Disable browser native email validation so react-hook-form/zod errors show
+    await page.evaluate(() => {
+      document.querySelector('form')?.setAttribute('novalidate', '')
+    })
     await page.getByLabel('Email').fill('not-an-email')
     await page.getByLabel('Password').fill('password123')
     await page.getByRole('button', { name: 'Sign in' }).click()
@@ -49,8 +53,8 @@ test.describe('Login page', () => {
 test.describe('Register page', () => {
   test('renders registration form', async ({ page }) => {
     await page.goto('/register')
-    await expect(page.getByText('Create account')).toBeVisible()
-    await expect(page.getByText('I am a')).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Create account' })).toBeVisible()
+    await expect(page.getByText(/I am a/)).toBeVisible()
     await expect(page.getByRole('button', { name: 'Sponsor' })).toBeVisible()
     await expect(
       page.getByRole('button', { name: 'Clinic Admin' })

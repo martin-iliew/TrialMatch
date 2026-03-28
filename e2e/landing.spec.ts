@@ -3,9 +3,9 @@ import { test, expect } from '@playwright/test'
 test.describe('Landing page', () => {
   test('displays hero content', async ({ page }) => {
     await page.goto('/')
-    await expect(page.getByText('TrialMatch')).toBeVisible()
+    await expect(page.getByText('TrialMatch').first()).toBeVisible()
     await expect(
-      page.getByText('Match the right clinics to your clinical trial in minutes.')
+      page.getByText('Match clinics to trials in minutes, not months')
     ).toBeVisible()
   })
 

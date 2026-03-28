@@ -19,7 +19,7 @@ test.describe('Navigation between auth pages', () => {
     await page.goto('/login')
     await page.getByRole('link', { name: 'Sign up' }).click()
     await page.waitForURL('/register')
-    await expect(page.getByText('Create account')).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Create account' })).toBeVisible()
 
     await page.getByRole('link', { name: 'Sign in' }).click()
     await page.waitForURL('/login')

@@ -56,23 +56,28 @@ export default function RequirementsSection({
     e.preventDefault()
     setLoading(true)
 
-    const result = await addRequirement({
-      project_id: projectId,
-      type,
-      label: value,
-      value: { text: value },
-      is_hard_filter: priority === "required",
-      weight: priority === "required" ? 1.0 : priority === "preferred" ? 0.7 : 0.3,
-    })
+    try {
+      const result = await addRequirement({
+        project_id: projectId,
+        type,
+        label: value,
+        value: { text: value },
+        is_hard_filter: priority === "required",
+        weight: priority === "required" ? 1.0 : priority === "preferred" ? 0.7 : 0.3,
+      })
 
-    if (result.error) {
-      toast.error(result.error)
-    } else if (result.data) {
-      setRequirements((prev) => [...prev, result.data!])
-      setShowForm(false)
-      setValue("")
+      if (result.error) {
+        toast.error(result.error)
+      } else if (result.data) {
+        setRequirements((prev) => [...prev, result.data!])
+        setShowForm(false)
+        setValue("")
+      }
+    } catch {
+      toast.error("Failed to add requirement. Please try again.")
+    } finally {
+      setLoading(false)
     }
-    setLoading(false)
   }
 
   async function handleDelete(id: string) {

@@ -19,7 +19,7 @@ const addRequirementSchema = z.object({
   project_id: z.string().uuid("Invalid project ID"),
   type: z.enum(["therapeutic_area", "equipment", "patient_volume", "certification", "geography", "other"]),
   label: z.string().min(1, "Label is required"),
-  value: z.record(z.unknown()),
+  value: z.record(z.string(), z.unknown()),
   is_hard_filter: z.boolean().default(false),
   weight: z.number().min(0).max(1).default(1.0),
 })
@@ -74,21 +74,6 @@ export async function addRequirement(data: {
   const supabase = await createServerClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { error: "Unauthorized" }
-
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("organization_id")
-    .eq("id", user.id)
-    .single()
-
-  const { data: project } = await supabase
-    .from("trial_projects")
-    .select("id")
-    .eq("id", result.data.project_id)
-    .eq("organization_id", profile?.organization_id ?? "")
-    .single()
-
-  if (!project) return { error: "Project not found or not authorized" }
 
   const { data: requirement, error } = await supabase
     .from("project_requirements")
