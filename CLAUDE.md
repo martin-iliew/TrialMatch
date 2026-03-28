@@ -460,3 +460,12 @@ Key rules:
 1. Land on marketing page → learn about TrialMatch
 2. Navigate to `/register` → choose role (sponsor or clinic admin)
 3. Contact via landing page form (no auth required)
+
+## Component Rules
+  - Always componentize UI — break everything into components, never leave raw markup in pages.
+  - If a component is used by only one route or page, co-locate it in that route's folder under `components/*` (e.g.
+  `src/app/(sponsor)/sponsor/projects/components/ProjectCard.tsx`).
+  - Always use 21st.dev (`@21st-dev/magic`) or shadcn/ui (or both) as the component source — never build from scratch
+  when a quality primitive exists.
+  - All components must look visually consistent with each other — follow the same design language.
+  - Always use the design system tokens — no exceptions, no one-off styles.
