@@ -1,0 +1,29 @@
+{
+  "mcpServers": {
+    "next-devtools": {
+      "command": "npx",
+      "args": ["-y", "next-devtools-mcp@latest"]
+    },
+    "shadcn": {
+      "command": "npx",
+      "args": ["shadcn@latest", "mcp"]
+    },
+    "magic": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@21st-dev/magic@latest"],
+      "env": {
+        "API_KEY": "5f9bbb492a24dde0c0ec0ccd597b949677d55c2400426c1fa0177f5a22f42304"
+      }
+    },
+    "supabase": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@supabase/mcp-server-supabase@latest",
+        "--access-token",
+        "${SUPABASE_ACCESS_TOKEN}"
+      ]
+    }
+  }
+}

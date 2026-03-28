@@ -1,0 +1,410 @@
+/* --- Primitive Scale (Desktop-first) --- */
+:root {
+  /* Landing hero */
+  --text-landing: 107px;
+  --leading-landing: 107px;
+  --tracking-landing: -2.14px;
+
+  /* 9xl */
+  --text-9xl: 148px;
+  --leading-9xl: 145.04px;
+  --tracking-9xl: -2.96px;
+
+  /* 8xl */
+  --text-8xl: 124px;
+  --leading-8xl: 121.52px;
+  --tracking-8xl: -2.48px;
+
+  /* 7xl */
+  --text-7xl: 98px;
+  --leading-7xl: 82.04px;
+  --tracking-7xl: -1.8px;
+
+  /* 6xl */
+  --text-6xl: 72px;
+  --leading-6xl: 72px;
+  --tracking-6xl: -1.44px;
+
+  /* 5xl */
+  --text-5xl: 54px;
+  --leading-5xl: 56.16px;
+  --tracking-5xl: -0.95px;
+
+  /* 4xl */
+  --text-4xl: 42px;
+  --leading-4xl: 43.68px;
+  --tracking-4xl: -0.73px;
+
+  /* 3xl */
+  --text-3xl: 32px;
+  --leading-3xl: 33.92px;
+  --tracking-3xl: -0.15px;
+
+  /* 2xl */
+  --text-2xl: 28px;
+  --leading-2xl: 30.24px;
+  --tracking-2xl: -0.1px;
+
+  /* xl */
+  --text-xl: 24px;
+  --leading-xl: 25.92px;
+  --tracking-xl: -0.07px;
+
+  /* lg */
+  --text-lg: 22px;
+  --leading-lg: 24.64px;
+  --tracking-lg: -0.08px;
+
+  /* md */
+  --text-md: 20px;
+  --leading-md: 26px;
+  --tracking-md: -0.05px;
+
+  /* base */
+  --text-base: 17.5px;
+  --leading-base: 25.38px;
+  --tracking-base: 0.18px;
+
+  /* sm */
+  --text-sm: 14.5px;
+  --leading-sm: 21.02px;
+  --tracking-sm: 0.16px;
+
+  /* xs */
+  --text-xs: 12.5px;
+  --leading-xs: 15.5px;
+  --tracking-xs: 0.11px;
+
+  /* CTA */
+  --text-cta: 17.5px;
+  --leading-cta: 25.38px;
+  --tracking-cta: 0.18px;
+
+  /* CTA Small */
+  --text-cta-sm: 14.5px;
+  --leading-cta-sm: 21.02px;
+  --tracking-cta-sm: 0.11px;
+}
+
+/* --- ≤1600px — landing hero downscale --- */
+@media (max-width: 1600px) {
+  :root {
+    --text-landing: 72px;
+    --leading-landing: 72.04px;
+    --tracking-landing: -1.44px;
+  }
+}
+
+/* --- ≤1024px — full tablet scale --- */
+@media (max-width: 1024px) {
+  :root {
+    --text-landing: 56px;
+    --leading-landing: 56.04px;
+    --tracking-landing: -1.12px;
+
+    --text-9xl: 38px;
+    --leading-9xl: 40.28px;
+    --tracking-9xl: -0.76px;
+
+    --text-8xl: 36px;
+    --leading-8xl: 38.16px;
+    --tracking-8xl: -0.72px;
+
+    --text-7xl: 34px;
+    --leading-7xl: 36.04px;
+    --tracking-7xl: -0.68px;
+
+    --text-6xl: 32px;
+    --leading-6xl: 33.92px;
+    --tracking-6xl: -0.64px;
+
+    --text-5xl: 28px;
+    --leading-5xl: 29.6px;
+    --tracking-5xl: -0.28px;
+
+    --text-4xl: 26px;
+    --leading-4xl: 28.08px;
+    --tracking-4xl: -0.26px;
+
+    --text-3xl: 26px;
+    --leading-3xl: 28.08px;
+    --tracking-3xl: -0.26px;
+
+    --text-2xl: 24px;
+    --leading-2xl: 25.92px;
+    --tracking-2xl: -0.14px;
+
+    --text-xl: 22px;
+    --leading-xl: 24.64px;
+    --tracking-xl: -0.13px;
+
+    --text-lg: 20px;
+    --leading-lg: 22.8px;
+    --tracking-lg: -0.08px;
+
+    --text-md: 18px;
+    --leading-md: 23.4px;
+    --tracking-md: -0.07px;
+
+    --text-base: 16px;
+    --leading-base: 23px;
+    --tracking-base: 0.16px;
+
+    --text-cta: 16px;
+    --leading-cta: 23px;
+    --tracking-cta: 0.16px;
+
+    --text-cta-sm: 16px;
+    --leading-cta-sm: 23px;
+    --tracking-cta-sm: 0.16px;
+  }
+}
+
+/* --- ≤767px — mobile --- */
+@media (max-width: 767px) {
+  :root {
+    --text-landing: 46px;
+    --leading-landing: 46.04px;
+    --tracking-landing: -0.92px;
+  }
+}
+
+/* --- ≤425px — small mobile --- */
+@media (max-width: 425px) {
+  :root {
+    --text-landing: 30px;
+    --leading-landing: 32.04px;
+    --tracking-landing: -0.6px;
+  }
+}
+
+/* ============================================================
+   Typography Classes
+   ============================================================ */
+
+.landing-hero {
+  font-family: var(--ff-display);
+  font-size: var(--text-landing);
+  line-height: var(--leading-landing);
+  letter-spacing: var(--tracking-landing);
+  font-weight: 450;
+  font-variation-settings:
+    "wdth" 100,
+    "opsz" 144;
+}
+
+.display-page {
+  font-family: var(--ff-display);
+  font-size: var(--text-9xl);
+  line-height: var(--leading-9xl);
+  letter-spacing: var(--tracking-9xl);
+  font-weight: 450;
+  font-variation-settings:
+    "wdth" 100,
+    "opsz" 144;
+}
+
+.title-page {
+  font-family: var(--ff-display);
+  font-size: var(--text-8xl);
+  line-height: var(--leading-8xl);
+  letter-spacing: var(--tracking-8xl);
+  font-weight: 450;
+  font-variation-settings:
+    "wdth" 100,
+    "opsz" 124;
+}
+
+.heading-1 {
+  font-family: var(--ff-display);
+  font-size: var(--text-7xl);
+  line-height: var(--leading-7xl);
+  letter-spacing: var(--tracking-7xl);
+  font-weight: 450;
+  font-variation-settings:
+    "wdth" 100,
+    "opsz" 98;
+}
+
+.heading-2 {
+  font-family: var(--ff-display);
+  font-size: var(--text-6xl);
+  line-height: var(--leading-6xl);
+  letter-spacing: var(--tracking-6xl);
+  font-weight: 450;
+  font-variation-settings:
+    "wdth" 100,
+    "opsz" 72;
+}
+
+.heading-3 {
+  font-family: var(--ff-display);
+  font-size: var(--text-5xl);
+  line-height: var(--leading-5xl);
+  letter-spacing: var(--tracking-5xl);
+  font-weight: 450;
+  font-variation-settings:
+    "wdth" 100,
+    "opsz" 54;
+}
+
+.heading-4 {
+  font-family: var(--ff-display);
+  font-size: var(--text-4xl);
+  line-height: var(--leading-4xl);
+  letter-spacing: var(--tracking-4xl);
+  font-weight: 450;
+  font-variation-settings:
+    "wdth" 100,
+    "opsz" 42;
+}
+
+.heading-5 {
+  font-family: var(--ff-display);
+  font-size: var(--text-3xl);
+  line-height: var(--leading-3xl);
+  letter-spacing: var(--tracking-3xl);
+  font-weight: 450;
+  font-variation-settings:
+    "wdth" 100,
+    "opsz" 32;
+}
+
+.heading-6 {
+  font-family: var(--ff-display);
+  font-size: var(--text-2xl);
+  line-height: var(--leading-2xl);
+  letter-spacing: var(--tracking-2xl);
+  font-weight: 450;
+  font-variation-settings:
+    "wdth" 100,
+    "opsz" 28;
+}
+
+.heading-7 {
+  font-family: var(--ff-display);
+  font-size: var(--text-xl);
+  line-height: var(--leading-xl);
+  letter-spacing: var(--tracking-xl);
+  font-weight: 450;
+  font-variation-settings:
+    "wdth" 100,
+    "opsz" 24;
+}
+
+.heading-8 {
+  font-family: var(--ff-display);
+  font-size: var(--text-lg);
+  line-height: var(--leading-lg);
+  letter-spacing: var(--tracking-lg);
+  font-weight: 450;
+  font-variation-settings:
+    "wdth" 100,
+    "opsz" 22;
+}
+
+.heading-9 {
+  font-family: var(--ff-display);
+  font-size: var(--text-md);
+  line-height: var(--leading-md);
+  letter-spacing: var(--tracking-md);
+  font-weight: 450;
+  font-variation-settings:
+    "wdth" 100,
+    "opsz" 20;
+}
+
+.body {
+  font-family: var(--ff-body);
+  font-size: var(--text-base);
+  line-height: var(--leading-base);
+  letter-spacing: var(--tracking-base);
+  font-weight: 400;
+  font-variation-settings:
+    "wdth" 100,
+    "opsz" 17.5;
+}
+
+.body strong {
+  font-weight: 450;
+}
+
+.body em {
+  font-style: italic;
+}
+
+.body code {
+  font-family: var(--ff-code);
+  background-color: #0000000d;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 0.9em;
+}
+
+.body-small {
+  font-family: var(--ff-body);
+  font-size: var(--text-sm);
+  line-height: var(--leading-sm);
+  letter-spacing: var(--tracking-sm);
+  font-weight: 400;
+  font-variation-settings:
+    "wdth" 100,
+    "opsz" 15;
+}
+
+.caption {
+  font-family: var(--ff-body);
+  font-size: var(--text-sm);
+  line-height: var(--leading-sm);
+  letter-spacing: var(--tracking-sm);
+  font-weight: 400;
+  font-variation-settings:
+    "wdth" 100,
+    "opsz" 15;
+}
+
+.small {
+  font-family: var(--ff-body);
+  font-size: var(--text-xs);
+  line-height: var(--leading-xs);
+  letter-spacing: var(--tracking-xs);
+  font-weight: 450;
+}
+
+.label {
+  font-family: var(--ff-body);
+  font-size: var(--text-sm);
+  line-height: var(--leading-sm);
+  letter-spacing: var(--tracking-sm);
+  font-weight: 500;
+}
+
+.cta {
+  font-family: var(--ff-body);
+  font-size: var(--text-cta);
+  line-height: var(--leading-cta);
+  letter-spacing: var(--tracking-cta);
+  font-weight: 450;
+  font-variation-settings:
+    "wdth" 100,
+    "opsz" 17.5;
+}
+
+.cta-sm {
+  font-family: var(--ff-body);
+  font-size: var(--text-cta-sm);
+  line-height: var(--leading-cta-sm);
+  letter-spacing: var(--tracking-cta-sm);
+  font-weight: 450;
+  font-variation-settings:
+    "wdth" 100,
+    "opsz" 14.5;
+  cursor: pointer;
+}
+
+.code {
+  font-family: var(--ff-code);
+  font-size: var(--text-sm);
+  line-height: var(--leading-sm);
+  letter-spacing: var(--tracking-sm);
+}
