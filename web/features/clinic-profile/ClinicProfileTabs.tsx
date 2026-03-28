@@ -12,6 +12,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/typography"
 import {
   upsertClinic,
+  upsertSpecializations,
   addEquipment,
   deleteEquipment,
   addCertification,
@@ -24,6 +25,8 @@ type Props = {
   equipment: Tables<"equipment">[]
   certifications: Tables<"certifications">[]
   availability: Tables<"clinic_availability"> | null
+  therapeuticAreas?: Tables<"therapeutic_areas">[]
+  selectedSpecializations?: string[]
 }
 
 const tabs = ["Profile", "Equipment", "Certs & Availability"] as const
@@ -62,7 +65,19 @@ const availabilitySchema = z.object({
 
 // --- Tab: Profile ---
 
-function ProfileTab({ clinic }: { clinic: Tables<"clinics"> | null }) {
+function ProfileTab({
+  clinic,
+  therapeuticAreas,
+  selectedSpecializations,
+}: {
+  clinic: Tables<"clinics"> | null
+  therapeuticAreas: Tables<"therapeutic_areas">[]
+  selectedSpecializations: string[]
+}) {
+  const [checkedAreas, setCheckedAreas] = useState<Set<string>>(
+    new Set(selectedSpecializations)
+  )
+  const [savingSpecs, setSavingSpecs] = useState(false)
   const { register, handleSubmit, formState: { errors, isSubmitting } } =
     useForm<z.infer<typeof profileSchema>>({ resolver: zodResolver(profileSchema), defaultValues: {
       name: clinic?.name ?? "",
@@ -126,6 +141,51 @@ function ProfileTab({ clinic }: { clinic: Tables<"clinics"> | null }) {
         <Input placeholder="https://clinic.com" {...register("website")} />
         {errors.website && <p className="text-sm text-red-500">{errors.website.message}</p>}
       </div>
+
+      {therapeuticAreas.length > 0 && (
+        <div className="space-y-2">
+          <Label as="label">Specializations</Label>
+          <div className="grid grid-cols-3 gap-2">
+            {therapeuticAreas.map((area) => (
+              <label key={area.id} className="flex items-center gap-2 text-sm cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={checkedAreas.has(area.id)}
+                  onChange={(e) => {
+                    const next = new Set(checkedAreas)
+                    if (e.target.checked) next.add(area.id)
+                    else next.delete(area.id)
+                    setCheckedAreas(next)
+                  }}
+                  className="rounded"
+                />
+                {area.name}
+              </label>
+            ))}
+          </div>
+          {clinic?.id && (
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              disabled={savingSpecs}
+              onClick={async () => {
+                setSavingSpecs(true)
+                try {
+                  await upsertSpecializations(clinic.id, [...checkedAreas])
+                  toast.success("Specializations saved")
+                } catch (e) {
+                  toast.error(e instanceof Error ? e.message : "Failed to save specializations")
+                }
+                setSavingSpecs(false)
+              }}
+            >
+              {savingSpecs ? "Saving…" : "Save specializations"}
+            </Button>
+          )}
+        </div>
+      )}
+
       <Button type="submit" disabled={isSubmitting}>
         {isSubmitting ? "Saving…" : "Save profile"}
       </Button>
@@ -358,7 +418,7 @@ function CertsAvailabilityTab({
 
 // --- Main component ---
 
-export default function ClinicProfileTabs({ clinic, equipment, certifications, availability }: Props) {
+export default function ClinicProfileTabs({ clinic, equipment, certifications, availability, therapeuticAreas = [], selectedSpecializations = [] }: Props) {
   const [activeTab, setActiveTab] = useState<Tab>("Profile")
 
   return (
@@ -384,7 +444,13 @@ export default function ClinicProfileTabs({ clinic, equipment, certifications, a
       </div>
 
       {/* Tab content */}
-      {activeTab === "Profile" && <ProfileTab clinic={clinic} />}
+      {activeTab === "Profile" && (
+        <ProfileTab
+          clinic={clinic}
+          therapeuticAreas={therapeuticAreas}
+          selectedSpecializations={selectedSpecializations}
+        />
+      )}
       {activeTab === "Equipment" && (
         <EquipmentTab equipment={equipment} clinicId={clinic?.id} />
       )}
