@@ -41,13 +41,13 @@ export default function NewProjectForm({ areas }: { areas: Tables<"therapeutic_a
   async function onSubmit(values: FormValues) {
     const result = await createTrialProject({
       title: values.title,
-      description: values.description || undefined,
-      therapeutic_area_id: values.therapeutic_area_id || undefined,
-      phase: values.phase || undefined,
-      target_enrollment: values.target_enrollment || undefined,
-      start_date: values.start_date || undefined,
-      end_date: values.end_date || undefined,
-      geographic_preference: values.geographic_preference || undefined,
+      description: values.description,
+      therapeutic_area_id: values.therapeutic_area_id,
+      phase: values.phase,
+      target_enrollment: values.target_enrollment,
+      start_date: values.start_date,
+      end_date: values.end_date,
+      geographic_preference: values.geographic_preference,
     })
 
     if (result.error) {

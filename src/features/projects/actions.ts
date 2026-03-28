@@ -4,15 +4,17 @@ import { z } from "zod"
 import { createServerClient } from "@/lib/supabase/server"
 import { revalidatePath } from "next/cache"
 
+const emptyStringToUndefined = <T>(val: T) => (val === "" ? undefined : val)
+
 const createTrialProjectSchema = z.object({
   title: z.string().min(1, "Title is required"),
-  description: z.string().optional(),
-  therapeutic_area_id: z.string().uuid().optional(),
-  phase: z.string().optional(),
-  target_enrollment: z.number().positive().optional(),
-  start_date: z.string().optional(),
-  end_date: z.string().optional(),
-  geographic_preference: z.string().optional(),
+  description: z.string().optional().transform(emptyStringToUndefined),
+  therapeutic_area_id: z.string().optional().transform(emptyStringToUndefined),
+  phase: z.string().optional().transform(emptyStringToUndefined),
+  target_enrollment: z.union([z.number().positive(), z.nan()]).optional().transform(v => (v === undefined || Number.isNaN(v as number) ? undefined : v)),
+  start_date: z.string().optional().transform(emptyStringToUndefined),
+  end_date: z.string().optional().transform(emptyStringToUndefined),
+  geographic_preference: z.string().optional().transform(emptyStringToUndefined),
 })
 
 const addRequirementSchema = z.object({
