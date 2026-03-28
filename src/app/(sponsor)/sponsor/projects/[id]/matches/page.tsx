@@ -72,7 +72,7 @@ export default async function MatchResultsPage({
                 matchResult={result}
                 clinicName={clinic?.name ?? "Unknown"}
                 clinicCity={clinic?.city ?? ""}
-                inquiry={inquiry ?? null}
+                inquiry={(inquiry ?? null) as import("@/types").Tables<"inquiries"> | null}
               />
             )
           })}

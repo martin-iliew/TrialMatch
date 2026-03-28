@@ -4,7 +4,6 @@ import { useState, useEffect } from "react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
-import { Input } from "@/components/ui/input"
 import { Label, BodySmall, Caption } from "@/components/ui/typography"
 import { sendInquiry } from "@/features/inquiries/actions"
 import { createClient } from "@/lib/supabase/client"
@@ -35,9 +34,9 @@ function scoreBarColor(score: number, max: number): string {
 
 const statusColors: Record<string, string> = {
   pending: "bg-surface-status-warning text-icon-status-warning",
-  inquiry_sent: "bg-surface-status-info text-icon-status-info",
+  reviewed: "bg-surface-status-info text-icon-status-info",
   accepted: "bg-surface-status-success text-icon-status-success",
-  declined: "bg-surface-status-danger text-icon-status-danger",
+  rejected: "bg-surface-status-danger text-icon-status-danger",
 }
 
 function ClinicPreviewModal({
@@ -48,25 +47,28 @@ function ClinicPreviewModal({
   onClose: () => void
 }) {
   const [clinic, setClinic] = useState<Tables<"clinics"> | null>(null)
-  const [specs, setSpecs] = useState<string[]>([])
+  const [areaNames, setAreaNames] = useState<string[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     const supabase = createClient()
     async function load() {
-      const [clinicRes, specsRes] = await Promise.all([
-        supabase.from("clinics").select("*").eq("id", clinicId).single(),
-        supabase
-          .from("clinic_specializations")
-          .select("therapeutic_areas(name)")
-          .eq("clinic_id", clinicId),
-      ])
-      setClinic(clinicRes.data)
-      setSpecs(
-        (specsRes.data ?? [])
-          .map((s) => (s.therapeutic_areas as unknown as { name: string })?.name)
-          .filter(Boolean),
-      )
+      const { data: clinicData } = await supabase
+        .from("clinics")
+        .select("*")
+        .eq("id", clinicId)
+        .single()
+
+      setClinic(clinicData)
+
+      if (clinicData?.therapeutic_area_ids?.length) {
+        const { data: areas } = await supabase
+          .from("therapeutic_areas")
+          .select("name")
+          .in("id", clinicData.therapeutic_area_ids)
+        setAreaNames((areas ?? []).map((a) => a.name))
+      }
+
       setLoading(false)
     }
     load()
@@ -112,18 +114,18 @@ function ClinicPreviewModal({
                   {clinic.address}
                 </Caption>
               )}
-              {clinic.site_type && (
+              {clinic.patient_capacity && (
                 <Caption>
-                  <span className="text-secondary">Site type: </span>
-                  {String(clinic.site_type).replace(/_/g, " ")}
+                  <span className="text-secondary">Patient capacity: </span>
+                  {clinic.patient_capacity}
                 </Caption>
               )}
-              {specs.length > 0 && (
+              {areaNames.length > 0 && (
                 <div>
                   <Caption className="text-secondary">Specializations: </Caption>
                   <div className="mt-1 flex flex-wrap gap-1">
-                    {specs.map((s) => (
-                      <Badge key={s}>{s}</Badge>
+                    {areaNames.map((name) => (
+                      <Badge key={name}>{name}</Badge>
                     ))}
                   </div>
                 </div>
@@ -149,14 +151,13 @@ export default function MatchResultCard({
   matchResult: Tables<"match_results">
   clinicName: string
   clinicCity: string
-  inquiry: Tables<"partnership_inquiries"> | null
+  inquiry: Tables<"inquiries"> | null
 }) {
-  const breakdown = matchResult.breakdown as unknown as ScoreBreakdown
+  const breakdown = matchResult.score_breakdown as unknown as ScoreBreakdown
   const [showInquiryForm, setShowInquiryForm] = useState(false)
   const [showPreview, setShowPreview] = useState(false)
   const [sending, setSending] = useState(false)
   const [message, setMessage] = useState("")
-  const [notes, setNotes] = useState("")
   const [sent, setSent] = useState(Boolean(inquiry) || matchResult.status !== "pending")
 
   async function handleSend(e: React.FormEvent) {
@@ -166,7 +167,6 @@ export default function MatchResultCard({
     const result = await sendInquiry({
       matchResultId: matchResult.id,
       message,
-      notes: notes || undefined,
     })
 
     if (result.error) {
@@ -230,19 +230,13 @@ export default function MatchResultCard({
       <div className="mt-4 border-t border-primary pt-3">
         {sent || inquiry ? (
           <div className="flex items-center gap-2">
-            <Badge className={statusColors[inquiry?.status ?? matchResult.status] ?? ""}>
-              {inquiry?.status === "accepted"
+            <Badge className={statusColors[inquiry ? (inquiry.status === "in_progress" ? "accepted" : inquiry.status === "closed" ? "rejected" : "reviewed") : matchResult.status] ?? ""}>
+              {inquiry?.status === "in_progress"
                 ? "Accepted"
-                : inquiry?.status === "declined"
+                : inquiry?.status === "closed"
                   ? "Declined"
                   : "Inquiry Sent"}
             </Badge>
-            {inquiry?.response_message && (
-              <Caption className="text-secondary">— {inquiry.response_message}</Caption>
-            )}
-            {inquiry?.decline_reason && (
-              <Caption className="text-icon-status-danger">— {inquiry.decline_reason}</Caption>
-            )}
           </div>
         ) : showInquiryForm ? (
           <form onSubmit={handleSend} className="space-y-3">
@@ -253,14 +247,6 @@ export default function MatchResultCard({
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
                 placeholder="Introduce your trial and explain why this clinic is a good fit..."
-              />
-            </div>
-            <div className="space-y-1.5">
-              <Label>Internal Notes</Label>
-              <Input
-                value={notes}
-                onChange={(e) => setNotes(e.target.value)}
-                placeholder="Notes for your team (not shared with clinic)"
               />
             </div>
             <div className="flex gap-2">
