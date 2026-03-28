@@ -23,15 +23,7 @@ export default async function Navbar() {
         </Link>
 
         <div className="flex items-center gap-4">
-          <Link href="/clinics" className="text-body-small text-secondary hover:text-primary">
-            Clinics
-          </Link>
-          {role === "sponsor" && (
-            <Link href="/sponsor/projects" className="text-body-small text-secondary hover:text-primary">
-              My Projects
-            </Link>
-          )}
-          {role === "clinic_admin" && (
+          {role === "clinic_admin" ? (
             <>
               <Link href="/clinic/profile" className="text-body-small text-secondary hover:text-primary">
                 My Profile
@@ -40,6 +32,15 @@ export default async function Navbar() {
                 Inquiries
               </Link>
             </>
+          ) : (
+            <Link href="/clinics" className="text-body-small text-secondary hover:text-primary">
+              Clinics
+            </Link>
+          )}
+          {role === "sponsor" && (
+            <Link href="/sponsor/projects" className="text-body-small text-secondary hover:text-primary">
+              My Projects
+            </Link>
           )}
 
           {user ? (
