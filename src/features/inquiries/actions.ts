@@ -6,7 +6,7 @@ import { revalidatePath } from "next/cache"
 
 const sendInquirySchema = z.object({
   matchResultId: z.string().min(1, "Match result ID is required"),
-  subject: z.string().min(1, "Subject is required"),
+  subject: z.string().optional(),
   message: z.string().min(1, "Message is required"),
 })
 
@@ -18,7 +18,7 @@ const respondToInquirySchema = z.object({
 
 export async function sendInquiry(data: {
   matchResultId: string
-  subject: string
+  subject?: string
   message: string
 }) {
   const result = sendInquirySchema.safeParse(data)
@@ -60,7 +60,7 @@ export async function sendInquiry(data: {
     .insert({
       match_result_id: result.data.matchResultId,
       created_by: user.id,
-      subject: result.data.subject,
+      subject: result.data.subject ?? "Trial Partnership Inquiry",
       status: "open",
     })
     .select()

@@ -24,10 +24,8 @@ export default function InquiryResponseForm({ inquiryId }: { inquiryId: string }
     }
     setLoading(true)
     setError(null)
-    const result = await respondToInquiry(inquiryId, action, {
-      response_message: responseMessage || undefined,
-      decline_reason: declineReason || undefined,
-    })
+    const message = action === "declined" ? declineReason : responseMessage || undefined
+    const result = await respondToInquiry(inquiryId, action, message)
     if (result.error) {
       setError(result.error)
       setLoading(false)
