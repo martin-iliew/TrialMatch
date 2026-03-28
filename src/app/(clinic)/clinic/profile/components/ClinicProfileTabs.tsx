@@ -17,14 +17,15 @@ import {
   deleteEquipment,
   addCertification,
   deleteCertification,
-  upsertAvailability,
+  addAvailability,
+  deleteAvailability,
 } from "@/features/clinics/actions"
 
 type Props = {
   clinic: Tables<"clinics"> | null
-  equipment: Tables<"equipment">[]
+  equipment: Tables<"clinic_equipment">[]
   certifications: Tables<"certifications">[]
-  availability: Tables<"clinic_availability"> | null
+  availability: Tables<"clinic_availability">[]
   therapeuticAreas: Tables<"therapeutic_areas">[]
   selectedSpecializations: string[]
 }
@@ -38,15 +39,15 @@ const profileSchema = z.object({
   address: z.string().min(1, "Address is required"),
   description: z.string().optional(),
   contact_email: z.string().email("Enter a valid email"),
-  phone: z.string().optional(),
+  contact_phone: z.string().optional(),
   website: z.string().url("Enter a valid URL").optional().or(z.literal("")),
 })
 
 const equipmentSchema = z.object({
-  equipment_type: z.string().min(1, "Type is required"),
   name: z.string().min(1, "Name is required"),
+  category: z.enum(["imaging", "laboratory", "monitoring", "surgical", "rehabilitation", "diagnostic", "other"]),
+  model: z.string().optional(),
   quantity: z.number().min(1),
-  is_available: z.boolean(),
 })
 
 const certSchema = z.object({
@@ -56,9 +57,10 @@ const certSchema = z.object({
 })
 
 const availabilitySchema = z.object({
-  available_from: z.string().min(1, "Start date is required"),
-  available_to: z.string().min(1, "End date is required"),
-  max_concurrent_trials: z.number().min(1, "Capacity must be at least 1"),
+  start_date: z.string().min(1, "Start date is required"),
+  end_date: z.string().min(1, "End date is required"),
+  type: z.enum(["available", "busy", "tentative"]).default("available"),
+  notes: z.string().optional(),
 })
 
 function ProfileTab({
@@ -81,7 +83,7 @@ function ProfileTab({
         address: clinic?.address ?? "",
         description: clinic?.description ?? "",
         contact_email: clinic?.contact_email ?? "",
-        phone: clinic?.contact_phone ?? "",
+        contact_phone: clinic?.contact_phone ?? "",
         website: clinic?.website ?? "",
       },
     })
@@ -130,8 +132,8 @@ function ProfileTab({
           {errors.contact_email && <Caption className="text-icon-status-danger">{errors.contact_email.message}</Caption>}
         </div>
         <div className="space-y-1.5">
-          <Label htmlFor="phone">Phone</Label>
-          <Input id="phone" placeholder="+359 2 000 0000" {...register("phone")} />
+          <Label htmlFor="contact_phone">Phone</Label>
+          <Input id="contact_phone" placeholder="+359 2 000 0000" {...register("contact_phone")} />
         </div>
       </div>
       <div className="space-y-1.5">
@@ -195,14 +197,14 @@ function EquipmentTab({
   equipment: initialEquipment,
   clinicId,
 }: {
-  equipment: Tables<"equipment">[]
+  equipment: Tables<"clinic_equipment">[]
   clinicId: string | undefined
 }) {
   const [equipment, setEquipment] = useState(initialEquipment)
   const { register, handleSubmit, reset, formState: { errors, isSubmitting } } =
     useForm<z.infer<typeof equipmentSchema>>({
       resolver: zodResolver(equipmentSchema),
-      defaultValues: { is_available: true, quantity: 1 },
+      defaultValues: { quantity: 1, category: "other" },
     })
 
   async function onAdd(values: z.infer<typeof equipmentSchema>) {
@@ -236,7 +238,7 @@ function EquipmentTab({
             <li key={eq.id} className="flex items-center justify-between rounded-xl border border-primary px-4 py-3">
               <div>
                 <BodySmall className="font-medium text-primary">{eq.name}</BodySmall>
-                <Caption className="text-secondary">{eq.equipment_type} · qty {eq.quantity}</Caption>
+                <Caption className="text-secondary">{eq.category} · qty {eq.quantity}</Caption>
               </div>
               <button
                 onClick={() => handleDelete(eq.id)}
@@ -253,24 +255,31 @@ function EquipmentTab({
         <BodySmall className="font-medium text-primary">Add equipment</BodySmall>
         <div className="grid grid-cols-2 gap-3">
           <div className="space-y-1.5">
-            <Label htmlFor="equipment_type">Type</Label>
-            <Input id="equipment_type" placeholder="Imaging" {...register("equipment_type")} />
-            {errors.equipment_type && <Caption className="text-icon-status-danger">{errors.equipment_type.message}</Caption>}
-          </div>
-          <div className="space-y-1.5">
             <Label htmlFor="eq_name">Name</Label>
             <Input id="eq_name" placeholder="MRI Scanner" {...register("name")} />
             {errors.name && <Caption className="text-icon-status-danger">{errors.name.message}</Caption>}
           </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="category">Category</Label>
+            <select
+              id="category"
+              className="h-10 w-full rounded-xl border border-primary bg-surface-level-0 px-3 text-body-small text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-surface-level-5"
+              {...register("category")}
+            >
+              {["imaging","laboratory","monitoring","surgical","rehabilitation","diagnostic","other"].map((c) => (
+                <option key={c} value={c}>{c.charAt(0).toUpperCase() + c.slice(1)}</option>
+              ))}
+            </select>
+          </div>
         </div>
         <div className="grid grid-cols-2 gap-3">
           <div className="space-y-1.5">
+            <Label htmlFor="model">Model</Label>
+            <Input id="model" placeholder="Optional" {...register("model")} />
+          </div>
+          <div className="space-y-1.5">
             <Label htmlFor="quantity">Quantity</Label>
             <Input id="quantity" type="number" min={1} {...register("quantity", { valueAsNumber: true })} />
-          </div>
-          <div className="flex items-center gap-2 pt-6">
-            <input type="checkbox" id="is_available" {...register("is_available")} />
-            <Label htmlFor="is_available">Available</Label>
           </div>
         </div>
         <Button type="submit" size="sm" disabled={isSubmitting}>
@@ -283,23 +292,20 @@ function EquipmentTab({
 
 function CertsAvailabilityTab({
   certifications: initialCerts,
-  availability,
+  availability: initialAvailability,
   clinicId,
 }: {
   certifications: Tables<"certifications">[]
-  availability: Tables<"clinic_availability"> | null
+  availability: Tables<"clinic_availability">[]
   clinicId: string | undefined
 }) {
   const [certifications, setCertifications] = useState(initialCerts)
+  const [availability, setAvailability] = useState(initialAvailability)
 
   const certForm = useForm<z.infer<typeof certSchema>>({ resolver: zodResolver(certSchema) })
   const availForm = useForm<z.infer<typeof availabilitySchema>>({
     resolver: zodResolver(availabilitySchema),
-    defaultValues: {
-      available_from: availability?.available_from ?? "",
-      available_to: availability?.available_to ?? "",
-      max_concurrent_trials: availability?.max_concurrent_trials ?? 1,
-    },
+    defaultValues: { type: "available" },
   })
 
   async function onAddCert(values: z.infer<typeof certSchema>) {
@@ -323,13 +329,24 @@ function CertsAvailabilityTab({
     }
   }
 
-  async function onSaveAvailability(values: z.infer<typeof availabilitySchema>) {
+  async function onAddAvailability(values: z.infer<typeof availabilitySchema>) {
     if (!clinicId) { toast.error("Save your profile first"); return }
     try {
-      await upsertAvailability(clinicId, values)
-      toast.success("Availability saved")
+      await addAvailability(clinicId, values)
+      toast.success("Availability window added")
+      availForm.reset()
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Failed to save")
+    }
+  }
+
+  async function handleDeleteAvailability(id: string) {
+    try {
+      await deleteAvailability(id)
+      setAvailability((prev) => prev.filter((a) => a.id !== id))
+      toast.success("Availability window removed")
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Failed to remove")
     }
   }
 
@@ -384,33 +401,64 @@ function CertsAvailabilityTab({
       </div>
 
       <div className="space-y-4">
-        <BodySmall className="font-semibold text-primary">Availability window</BodySmall>
-        <form onSubmit={availForm.handleSubmit(onSaveAvailability)} className="space-y-3">
+        <BodySmall className="font-semibold text-primary">Availability windows</BodySmall>
+        {availability.length === 0 ? (
+          <Caption className="text-secondary">No availability windows added yet.</Caption>
+        ) : (
+          <ul className="space-y-2">
+            {availability.map((a) => (
+              <li key={a.id} className="flex items-center justify-between rounded-xl border border-primary px-4 py-3">
+                <div>
+                  <BodySmall className="font-medium text-primary">{a.start_date} → {a.end_date}</BodySmall>
+                  <Caption className="text-secondary capitalize">{a.type}{a.notes ? ` · ${a.notes}` : ""}</Caption>
+                </div>
+                <button
+                  onClick={() => handleDeleteAvailability(a.id)}
+                  className="text-caption text-icon-status-danger hover:underline"
+                >
+                  Remove
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
+
+        <form onSubmit={availForm.handleSubmit(onAddAvailability)} className="space-y-3 rounded-2xl border border-primary p-4">
+          <BodySmall className="font-medium text-primary">Add availability window</BodySmall>
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
-              <Label htmlFor="available_from">Start date</Label>
-              <Input id="available_from" type="date" {...availForm.register("available_from")} />
-              {availForm.formState.errors.available_from && (
-                <Caption className="text-icon-status-danger">{availForm.formState.errors.available_from.message}</Caption>
+              <Label htmlFor="start_date">Start date</Label>
+              <Input id="start_date" type="date" {...availForm.register("start_date")} />
+              {availForm.formState.errors.start_date && (
+                <Caption className="text-icon-status-danger">{availForm.formState.errors.start_date.message}</Caption>
               )}
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="available_to">End date</Label>
-              <Input id="available_to" type="date" {...availForm.register("available_to")} />
-              {availForm.formState.errors.available_to && (
-                <Caption className="text-icon-status-danger">{availForm.formState.errors.available_to.message}</Caption>
+              <Label htmlFor="end_date">End date</Label>
+              <Input id="end_date" type="date" {...availForm.register("end_date")} />
+              {availForm.formState.errors.end_date && (
+                <Caption className="text-icon-status-danger">{availForm.formState.errors.end_date.message}</Caption>
               )}
             </div>
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="max_concurrent_trials">Patient capacity</Label>
-            <Input id="max_concurrent_trials" type="number" min={1} placeholder="50" {...availForm.register("max_concurrent_trials", { valueAsNumber: true })} />
-            {availForm.formState.errors.max_concurrent_trials && (
-              <Caption className="text-icon-status-danger">{availForm.formState.errors.max_concurrent_trials.message}</Caption>
-            )}
+            <Label htmlFor="avail_type">Status</Label>
+            <select
+              id="avail_type"
+              className="h-10 w-full rounded-xl border border-primary bg-surface-level-0 px-3 text-body-small text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-surface-level-5"
+              {...availForm.register("type")}
+            >
+              <option value="available">Available</option>
+              <option value="busy">Busy</option>
+              <option value="tentative">Tentative</option>
+            </select>
           </div>
-          <Button type="submit" disabled={availForm.formState.isSubmitting}>
-            {availForm.formState.isSubmitting ? "Saving…" : "Save availability"}
+          <div className="space-y-1.5">
+            <Label htmlFor="avail_notes">Notes</Label>
+            <Input id="avail_notes" placeholder="Optional" {...availForm.register("notes")} />
+          </div>
+          <Button type="submit" size="sm" disabled={availForm.formState.isSubmitting}>
+            {availForm.formState.isSubmitting ? "Saving…" : "Add window"}
           </Button>
         </form>
       </div>
@@ -426,9 +474,9 @@ function ProfileCompletion({
   selectedSpecializations,
 }: {
   clinic: Tables<"clinics"> | null
-  equipment: Tables<"equipment">[]
+  equipment: Tables<"clinic_equipment">[]
   certifications: Tables<"certifications">[]
-  availability: Tables<"clinic_availability"> | null
+  availability: Tables<"clinic_availability">[]
   selectedSpecializations: string[]
 }) {
   const steps = [
@@ -436,7 +484,7 @@ function ProfileCompletion({
     { label: "Specializations", done: selectedSpecializations.length > 0 },
     { label: "Equipment", done: equipment.length > 0 },
     { label: "Certifications", done: certifications.length > 0 },
-    { label: "Availability", done: Boolean(availability) },
+    { label: "Availability", done: availability.length > 0 },
   ]
   const completed = steps.filter((s) => s.done).length
   const pct = Math.round((completed / steps.length) * 100)

@@ -7,33 +7,57 @@ export type Json =
   | Json[]
 
 export type Database = {
-  graphql_public: {
-    Tables: {
-      [_ in never]: never
-    }
-    Views: {
-      [_ in never]: never
-    }
-    Functions: {
-      graphql: {
-        Args: {
-          extensions?: Json
-          operationName?: string
-          query?: string
-          variables?: Json
-        }
-        Returns: Json
-      }
-    }
-    Enums: {
-      [_ in never]: never
-    }
-    CompositeTypes: {
-      [_ in never]: never
-    }
+  // Allows to automatically instantiate createClient with right options
+  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
+  __InternalSupabase: {
+    PostgrestVersion: "14.4"
   }
   public: {
     Tables: {
+      audit_log: {
+        Row: {
+          action: string
+          created_at: string
+          id: string
+          ip_address: unknown
+          new_values: Json | null
+          old_values: Json | null
+          record_id: string | null
+          table_name: string | null
+          user_id: string | null
+        }
+        Insert: {
+          action: string
+          created_at?: string
+          id?: string
+          ip_address?: unknown
+          new_values?: Json | null
+          old_values?: Json | null
+          record_id?: string | null
+          table_name?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          id?: string
+          ip_address?: unknown
+          new_values?: Json | null
+          old_values?: Json | null
+          record_id?: string | null
+          table_name?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "audit_log_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       certifications: {
         Row: {
           certification_name: string
@@ -41,6 +65,7 @@ export type Database = {
           created_at: string
           id: string
           issued_by: string | null
+          updated_at: string
           valid_until: string | null
         }
         Insert: {
@@ -49,6 +74,7 @@ export type Database = {
           created_at?: string
           id?: string
           issued_by?: string | null
+          updated_at?: string
           valid_until?: string | null
         }
         Update: {
@@ -57,6 +83,7 @@ export type Database = {
           created_at?: string
           id?: string
           issued_by?: string | null
+          updated_at?: string
           valid_until?: string | null
         }
         Relationships: [
@@ -71,31 +98,34 @@ export type Database = {
       }
       clinic_availability: {
         Row: {
-          available_from: string
-          available_to: string
           clinic_id: string
           created_at: string
-          current_trial_count: number
+          end_date: string
           id: string
-          max_concurrent_trials: number
+          notes: string | null
+          start_date: string
+          type: Database["public"]["Enums"]["availability_type"]
+          updated_at: string
         }
         Insert: {
-          available_from: string
-          available_to: string
           clinic_id: string
           created_at?: string
-          current_trial_count?: number
+          end_date: string
           id?: string
-          max_concurrent_trials?: number
+          notes?: string | null
+          start_date: string
+          type?: Database["public"]["Enums"]["availability_type"]
+          updated_at?: string
         }
         Update: {
-          available_from?: string
-          available_to?: string
           clinic_id?: string
           created_at?: string
-          current_trial_count?: number
+          end_date?: string
           id?: string
-          max_concurrent_trials?: number
+          notes?: string | null
+          start_date?: string
+          type?: Database["public"]["Enums"]["availability_type"]
+          updated_at?: string
         }
         Relationships: [
           {
@@ -107,236 +137,250 @@ export type Database = {
           },
         ]
       }
-      clinic_specializations: {
+      clinic_equipment: {
         Row: {
+          category: Database["public"]["Enums"]["equipment_category"]
           clinic_id: string
-          therapeutic_area_id: string
+          created_at: string
+          id: string
+          manufacturer: string | null
+          model: string | null
+          name: string
+          notes: string | null
+          quantity: number
+          updated_at: string
         }
         Insert: {
+          category?: Database["public"]["Enums"]["equipment_category"]
           clinic_id: string
-          therapeutic_area_id: string
+          created_at?: string
+          id?: string
+          manufacturer?: string | null
+          model?: string | null
+          name: string
+          notes?: string | null
+          quantity?: number
+          updated_at?: string
         }
         Update: {
+          category?: Database["public"]["Enums"]["equipment_category"]
           clinic_id?: string
-          therapeutic_area_id?: string
+          created_at?: string
+          id?: string
+          manufacturer?: string | null
+          model?: string | null
+          name?: string
+          notes?: string | null
+          quantity?: number
+          updated_at?: string
         }
         Relationships: [
           {
-            foreignKeyName: "clinic_specializations_clinic_id_fkey"
+            foreignKeyName: "clinic_equipment_clinic_id_fkey"
             columns: ["clinic_id"]
             isOneToOne: false
             referencedRelation: "clinics"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "clinic_specializations_therapeutic_area_id_fkey"
-            columns: ["therapeutic_area_id"]
-            isOneToOne: false
-            referencedRelation: "therapeutic_areas"
             referencedColumns: ["id"]
           },
         ]
       }
       clinics: {
         Row: {
-          active_trial_count: number
           address: string | null
-          avg_contract_execution_days: number | null
-          avg_enrollment_rate_per_month: number | null
-          avg_query_response_days: number | null
-          avg_screen_failure_rate: number | null
-          catchment_area_population: number | null
-          city: string
+          city: string | null
           contact_email: string | null
           contact_phone: string | null
-          country: string
+          country: string | null
           created_at: string
           description: string | null
           id: string
-          irb_avg_review_days: number | null
-          irb_type: string | null
-          last_fda_inspection_outcome:
-            | Database["public"]["Enums"]["fda_inspection_outcome"]
-            | null
-          max_concurrent_trials: number
-          molecule_type_experience:
-            | Database["public"]["Enums"]["molecule_type"][]
-            | null
+          latitude: number | null
+          longitude: number | null
           name: string
-          nci_designated: boolean
-          patient_population: Json | null
-          phase_experience: Database["public"]["Enums"]["trial_phase"][] | null
-          protocol_deviation_rate: number | null
-          referral_network_size: number | null
-          site_type: Database["public"]["Enums"]["site_type"]
+          num_investigators: number | null
+          organization_id: string
+          patient_capacity: number | null
+          phase_experience: string[] | null
+          status: Database["public"]["Enums"]["clinic_status"]
+          therapeutic_area_ids: string[] | null
           updated_at: string
-          user_id: string | null
           website: string | null
         }
         Insert: {
-          active_trial_count?: number
           address?: string | null
-          avg_contract_execution_days?: number | null
-          avg_enrollment_rate_per_month?: number | null
-          avg_query_response_days?: number | null
-          avg_screen_failure_rate?: number | null
-          catchment_area_population?: number | null
-          city: string
+          city?: string | null
           contact_email?: string | null
           contact_phone?: string | null
-          country?: string
+          country?: string | null
           created_at?: string
           description?: string | null
           id?: string
-          irb_avg_review_days?: number | null
-          irb_type?: string | null
-          last_fda_inspection_outcome?:
-            | Database["public"]["Enums"]["fda_inspection_outcome"]
-            | null
-          max_concurrent_trials?: number
-          molecule_type_experience?:
-            | Database["public"]["Enums"]["molecule_type"][]
-            | null
+          latitude?: number | null
+          longitude?: number | null
           name: string
-          nci_designated?: boolean
-          patient_population?: Json | null
-          phase_experience?: Database["public"]["Enums"]["trial_phase"][] | null
-          protocol_deviation_rate?: number | null
-          referral_network_size?: number | null
-          site_type?: Database["public"]["Enums"]["site_type"]
+          num_investigators?: number | null
+          organization_id: string
+          patient_capacity?: number | null
+          phase_experience?: string[] | null
+          status?: Database["public"]["Enums"]["clinic_status"]
+          therapeutic_area_ids?: string[] | null
           updated_at?: string
-          user_id?: string | null
           website?: string | null
         }
         Update: {
-          active_trial_count?: number
           address?: string | null
-          avg_contract_execution_days?: number | null
-          avg_enrollment_rate_per_month?: number | null
-          avg_query_response_days?: number | null
-          avg_screen_failure_rate?: number | null
-          catchment_area_population?: number | null
-          city?: string
+          city?: string | null
           contact_email?: string | null
           contact_phone?: string | null
-          country?: string
+          country?: string | null
           created_at?: string
           description?: string | null
           id?: string
-          irb_avg_review_days?: number | null
-          irb_type?: string | null
-          last_fda_inspection_outcome?:
-            | Database["public"]["Enums"]["fda_inspection_outcome"]
-            | null
-          max_concurrent_trials?: number
-          molecule_type_experience?:
-            | Database["public"]["Enums"]["molecule_type"][]
-            | null
+          latitude?: number | null
+          longitude?: number | null
           name?: string
-          nci_designated?: boolean
-          patient_population?: Json | null
-          phase_experience?: Database["public"]["Enums"]["trial_phase"][] | null
-          protocol_deviation_rate?: number | null
-          referral_network_size?: number | null
-          site_type?: Database["public"]["Enums"]["site_type"]
+          num_investigators?: number | null
+          organization_id?: string
+          patient_capacity?: number | null
+          phase_experience?: string[] | null
+          status?: Database["public"]["Enums"]["clinic_status"]
+          therapeutic_area_ids?: string[] | null
           updated_at?: string
-          user_id?: string | null
           website?: string | null
-        }
-        Relationships: []
-      }
-      contact_inquiries: {
-        Row: {
-          created_at: string
-          email: string
-          id: string
-          message: string
-          name: string
-          organization_type: string | null
-        }
-        Insert: {
-          created_at?: string
-          email: string
-          id?: string
-          message: string
-          name: string
-          organization_type?: string | null
-        }
-        Update: {
-          created_at?: string
-          email?: string
-          id?: string
-          message?: string
-          name?: string
-          organization_type?: string | null
-        }
-        Relationships: []
-      }
-      equipment: {
-        Row: {
-          clinic_id: string
-          created_at: string
-          equipment_type: string
-          id: string
-          is_available: boolean
-          name: string
-          quantity: number
-        }
-        Insert: {
-          clinic_id: string
-          created_at?: string
-          equipment_type: string
-          id?: string
-          is_available?: boolean
-          name: string
-          quantity?: number
-        }
-        Update: {
-          clinic_id?: string
-          created_at?: string
-          equipment_type?: string
-          id?: string
-          is_available?: boolean
-          name?: string
-          quantity?: number
         }
         Relationships: [
           {
-            foreignKeyName: "equipment_clinic_id_fkey"
-            columns: ["clinic_id"]
+            foreignKeyName: "clinics_organization_id_fkey"
+            columns: ["organization_id"]
             isOneToOne: false
-            referencedRelation: "clinics"
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      inquiries: {
+        Row: {
+          created_at: string
+          created_by: string
+          id: string
+          match_result_id: string
+          status: Database["public"]["Enums"]["inquiry_status"]
+          subject: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          id?: string
+          match_result_id: string
+          status?: Database["public"]["Enums"]["inquiry_status"]
+          subject: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          id?: string
+          match_result_id?: string
+          status?: Database["public"]["Enums"]["inquiry_status"]
+          subject?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inquiries_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inquiries_match_result_id_fkey"
+            columns: ["match_result_id"]
+            isOneToOne: false
+            referencedRelation: "match_results"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      inquiry_messages: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          inquiry_id: string
+          metadata: Json | null
+          sender_id: string
+          type: Database["public"]["Enums"]["message_type"]
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          inquiry_id: string
+          metadata?: Json | null
+          sender_id: string
+          type?: Database["public"]["Enums"]["message_type"]
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          inquiry_id?: string
+          metadata?: Json | null
+          sender_id?: string
+          type?: Database["public"]["Enums"]["message_type"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inquiry_messages_inquiry_id_fkey"
+            columns: ["inquiry_id"]
+            isOneToOne: false
+            referencedRelation: "inquiries"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inquiry_messages_sender_id_fkey"
+            columns: ["sender_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
       }
       match_results: {
         Row: {
-          breakdown: Json | null
+          algorithm_version: string | null
           clinic_id: string
+          created_at: string
           id: string
-          matched_at: string
-          overall_score: number
+          overall_score: number | null
+          project_id: string
+          score_breakdown: Json | null
           status: Database["public"]["Enums"]["match_status"]
-          trial_project_id: string
+          updated_at: string
         }
         Insert: {
-          breakdown?: Json | null
+          algorithm_version?: string | null
           clinic_id: string
+          created_at?: string
           id?: string
-          matched_at?: string
-          overall_score?: number
+          overall_score?: number | null
+          project_id: string
+          score_breakdown?: Json | null
           status?: Database["public"]["Enums"]["match_status"]
-          trial_project_id: string
+          updated_at?: string
         }
         Update: {
-          breakdown?: Json | null
+          algorithm_version?: string | null
           clinic_id?: string
+          created_at?: string
           id?: string
-          matched_at?: string
-          overall_score?: number
+          overall_score?: number | null
+          project_id?: string
+          score_breakdown?: Json | null
           status?: Database["public"]["Enums"]["match_status"]
-          trial_project_id?: string
+          updated_at?: string
         }
         Relationships: [
           {
@@ -347,97 +391,147 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "match_results_trial_project_id_fkey"
-            columns: ["trial_project_id"]
+            foreignKeyName: "match_results_project_id_fkey"
+            columns: ["project_id"]
             isOneToOne: false
             referencedRelation: "trial_projects"
             referencedColumns: ["id"]
           },
         ]
       }
-      partnership_inquiries: {
+      organizations: {
         Row: {
           created_at: string
-          decline_reason: string | null
+          description: string | null
           id: string
-          match_result_id: string
-          message: string
-          notes: string | null
-          responded_at: string | null
-          response_message: string | null
-          sender_user_id: string
-          status: Database["public"]["Enums"]["inquiry_status"]
+          name: string
+          type: Database["public"]["Enums"]["organization_type"]
+          updated_at: string
+          website: string | null
         }
         Insert: {
           created_at?: string
-          decline_reason?: string | null
+          description?: string | null
           id?: string
-          match_result_id: string
-          message: string
-          notes?: string | null
-          responded_at?: string | null
-          response_message?: string | null
-          sender_user_id: string
-          status?: Database["public"]["Enums"]["inquiry_status"]
+          name: string
+          type: Database["public"]["Enums"]["organization_type"]
+          updated_at?: string
+          website?: string | null
         }
         Update: {
           created_at?: string
-          decline_reason?: string | null
+          description?: string | null
           id?: string
-          match_result_id?: string
-          message?: string
-          notes?: string | null
-          responded_at?: string | null
-          response_message?: string | null
-          sender_user_id?: string
-          status?: Database["public"]["Enums"]["inquiry_status"]
+          name?: string
+          type?: Database["public"]["Enums"]["organization_type"]
+          updated_at?: string
+          website?: string | null
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          first_name: string | null
+          full_name: string | null
+          id: string
+          last_name: string | null
+          organization_id: string | null
+          role: Database["public"]["Enums"]["user_role"]
+          updated_at: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          first_name?: string | null
+          full_name?: string | null
+          id: string
+          last_name?: string | null
+          organization_id?: string | null
+          role: Database["public"]["Enums"]["user_role"]
+          updated_at?: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          first_name?: string | null
+          full_name?: string | null
+          id?: string
+          last_name?: string | null
+          organization_id?: string | null
+          role?: Database["public"]["Enums"]["user_role"]
+          updated_at?: string
         }
         Relationships: [
           {
-            foreignKeyName: "partnership_inquiries_match_result_id_fkey"
-            columns: ["match_result_id"]
+            foreignKeyName: "profiles_organization_id_fkey"
+            columns: ["organization_id"]
             isOneToOne: false
-            referencedRelation: "match_results"
+            referencedRelation: "organizations"
             referencedColumns: ["id"]
           },
         ]
       }
-      profiles: {
+      project_requirements: {
         Row: {
           created_at: string
-          first_name: string
           id: string
-          last_name: string
-          role: Database["public"]["Enums"]["user_role"]
+          is_hard_filter: boolean
+          label: string
+          project_id: string
+          type: Database["public"]["Enums"]["requirement_type"]
+          updated_at: string
+          value: Json
+          weight: number | null
         }
         Insert: {
           created_at?: string
-          first_name: string
-          id: string
-          last_name: string
-          role: Database["public"]["Enums"]["user_role"]
+          id?: string
+          is_hard_filter?: boolean
+          label: string
+          project_id: string
+          type: Database["public"]["Enums"]["requirement_type"]
+          updated_at?: string
+          value: Json
+          weight?: number | null
         }
         Update: {
           created_at?: string
-          first_name?: string
           id?: string
-          last_name?: string
-          role?: Database["public"]["Enums"]["user_role"]
+          is_hard_filter?: boolean
+          label?: string
+          project_id?: string
+          type?: Database["public"]["Enums"]["requirement_type"]
+          updated_at?: string
+          value?: Json
+          weight?: number | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "project_requirements_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "trial_projects"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       therapeutic_areas: {
         Row: {
+          created_at: string
           description: string | null
           id: string
           name: string
         }
         Insert: {
+          created_at?: string
           description?: string | null
           id?: string
           name: string
         }
         Update: {
+          created_at?: string
           description?: string | null
           id?: string
           name?: string
@@ -449,17 +543,12 @@ export type Database = {
           created_at: string
           description: string | null
           end_date: string | null
-          geographic_preference: string | null
           id: string
-          irb_type_preference: string | null
-          molecule_type: Database["public"]["Enums"]["molecule_type"] | null
-          phase: Database["public"]["Enums"]["trial_phase"] | null
-          required_patient_count: number | null
-          sponsor_user_id: string
+          organization_id: string
+          phase: string | null
           start_date: string | null
-          status: Database["public"]["Enums"]["trial_status"]
-          sub_indication: string | null
-          target_enrollment_rate_per_month: number | null
+          status: Database["public"]["Enums"]["project_status"]
+          target_enrollment: number | null
           therapeutic_area_id: string | null
           title: string
           updated_at: string
@@ -468,17 +557,12 @@ export type Database = {
           created_at?: string
           description?: string | null
           end_date?: string | null
-          geographic_preference?: string | null
           id?: string
-          irb_type_preference?: string | null
-          molecule_type?: Database["public"]["Enums"]["molecule_type"] | null
-          phase?: Database["public"]["Enums"]["trial_phase"] | null
-          required_patient_count?: number | null
-          sponsor_user_id: string
+          organization_id: string
+          phase?: string | null
           start_date?: string | null
-          status?: Database["public"]["Enums"]["trial_status"]
-          sub_indication?: string | null
-          target_enrollment_rate_per_month?: number | null
+          status?: Database["public"]["Enums"]["project_status"]
+          target_enrollment?: number | null
           therapeutic_area_id?: string | null
           title: string
           updated_at?: string
@@ -487,65 +571,29 @@ export type Database = {
           created_at?: string
           description?: string | null
           end_date?: string | null
-          geographic_preference?: string | null
           id?: string
-          irb_type_preference?: string | null
-          molecule_type?: Database["public"]["Enums"]["molecule_type"] | null
-          phase?: Database["public"]["Enums"]["trial_phase"] | null
-          required_patient_count?: number | null
-          sponsor_user_id?: string
+          organization_id?: string
+          phase?: string | null
           start_date?: string | null
-          status?: Database["public"]["Enums"]["trial_status"]
-          sub_indication?: string | null
-          target_enrollment_rate_per_month?: number | null
+          status?: Database["public"]["Enums"]["project_status"]
+          target_enrollment?: number | null
           therapeutic_area_id?: string | null
           title?: string
           updated_at?: string
         }
         Relationships: [
           {
+            foreignKeyName: "trial_projects_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "trial_projects_therapeutic_area_id_fkey"
             columns: ["therapeutic_area_id"]
             isOneToOne: false
             referencedRelation: "therapeutic_areas"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      trial_requirements: {
-        Row: {
-          created_at: string
-          description: string
-          id: string
-          priority: Database["public"]["Enums"]["requirement_priority"]
-          requirement_type: Database["public"]["Enums"]["requirement_type"]
-          trial_project_id: string
-          value: string | null
-        }
-        Insert: {
-          created_at?: string
-          description: string
-          id?: string
-          priority?: Database["public"]["Enums"]["requirement_priority"]
-          requirement_type: Database["public"]["Enums"]["requirement_type"]
-          trial_project_id: string
-          value?: string | null
-        }
-        Update: {
-          created_at?: string
-          description?: string
-          id?: string
-          priority?: Database["public"]["Enums"]["requirement_priority"]
-          requirement_type?: Database["public"]["Enums"]["requirement_type"]
-          trial_project_id?: string
-          value?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "trial_requirements_trial_project_id_fkey"
-            columns: ["trial_project_id"]
-            isOneToOne: false
-            referencedRelation: "trial_projects"
             referencedColumns: ["id"]
           },
         ]
@@ -558,37 +606,29 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      fda_inspection_outcome:
-        | "no_action"
-        | "voluntary_action"
-        | "official_action"
-        | "never_inspected"
-      inquiry_status: "pending" | "accepted" | "declined"
-      match_status: "pending" | "inquiry_sent" | "accepted" | "declined"
-      molecule_type:
-        | "small_molecule"
-        | "biologic"
-        | "cell_therapy"
-        | "gene_therapy"
-        | "vaccine"
-        | "device"
-      requirement_priority: "required" | "preferred" | "nice_to_have"
+      availability_type: "available" | "busy" | "tentative"
+      clinic_status: "active" | "inactive" | "pending"
+      equipment_category:
+        | "imaging"
+        | "laboratory"
+        | "monitoring"
+        | "surgical"
+        | "rehabilitation"
+        | "diagnostic"
+        | "other"
+      inquiry_status: "open" | "in_progress" | "closed" | "withdrawn"
+      match_status: "pending" | "reviewed" | "accepted" | "rejected"
+      message_type: "text" | "document" | "status_update"
+      organization_type: "sponsor" | "clinic"
+      project_status: "draft" | "active" | "paused" | "completed" | "archived"
       requirement_type:
+        | "therapeutic_area"
         | "equipment"
+        | "patient_volume"
         | "certification"
-        | "specialization"
-        | "capacity"
-        | "phase_experience"
-        | "molecule_experience"
-      site_type:
-        | "academic_medical_center"
-        | "community_hospital"
-        | "dedicated_research"
-        | "private_practice"
-        | "va_medical_center"
-      trial_phase: "I" | "Ia" | "Ib" | "II" | "IIa" | "IIb" | "III" | "IV"
-      trial_status: "draft" | "searching" | "matched" | "closed"
-      user_role: "sponsor" | "clinic_admin"
+        | "geography"
+        | "other"
+      user_role: "sponsor" | "clinic_admin" | "admin"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -714,47 +754,33 @@ export type CompositeTypes<
     : never
 
 export const Constants = {
-  graphql_public: {
-    Enums: {},
-  },
   public: {
     Enums: {
-      fda_inspection_outcome: [
-        "no_action",
-        "voluntary_action",
-        "official_action",
-        "never_inspected",
+      availability_type: ["available", "busy", "tentative"],
+      clinic_status: ["active", "inactive", "pending"],
+      equipment_category: [
+        "imaging",
+        "laboratory",
+        "monitoring",
+        "surgical",
+        "rehabilitation",
+        "diagnostic",
+        "other",
       ],
-      inquiry_status: ["pending", "accepted", "declined"],
-      match_status: ["pending", "inquiry_sent", "accepted", "declined"],
-      molecule_type: [
-        "small_molecule",
-        "biologic",
-        "cell_therapy",
-        "gene_therapy",
-        "vaccine",
-        "device",
-      ],
-      requirement_priority: ["required", "preferred", "nice_to_have"],
+      inquiry_status: ["open", "in_progress", "closed", "withdrawn"],
+      match_status: ["pending", "reviewed", "accepted", "rejected"],
+      message_type: ["text", "document", "status_update"],
+      organization_type: ["sponsor", "clinic"],
+      project_status: ["draft", "active", "paused", "completed", "archived"],
       requirement_type: [
+        "therapeutic_area",
         "equipment",
+        "patient_volume",
         "certification",
-        "specialization",
-        "capacity",
-        "phase_experience",
-        "molecule_experience",
+        "geography",
+        "other",
       ],
-      site_type: [
-        "academic_medical_center",
-        "community_hospital",
-        "dedicated_research",
-        "private_practice",
-        "va_medical_center",
-      ],
-      trial_phase: ["I", "Ia", "Ib", "II", "IIa", "IIb", "III", "IV"],
-      trial_status: ["draft", "searching", "matched", "closed"],
-      user_role: ["sponsor", "clinic_admin"],
+      user_role: ["sponsor", "clinic_admin", "admin"],
     },
   },
 } as const
-

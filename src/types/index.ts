@@ -7,19 +7,24 @@ export type Enums<T extends keyof Database['public']['Enums']> =
   Database['public']['Enums'][T]
 
 export type Clinic = Tables<'clinics'>
+export type ClinicEquipment = Tables<'clinic_equipment'>
+export type ClinicAvailability = Tables<'clinic_availability'>
+export type Certification = Tables<'certifications'>
 export type TrialProject = Tables<'trial_projects'>
-export type TrialRequirement = Tables<'trial_requirements'>
+export type ProjectRequirement = Tables<'project_requirements'>
 export type MatchResult = Tables<'match_results'>
-export type PartnershipInquiry = Tables<'partnership_inquiries'>
+export type Inquiry = Tables<'inquiries'>
+export type InquiryMessage = Tables<'inquiry_messages'>
 export type TherapeuticArea = Tables<'therapeutic_areas'>
 export type Profile = Tables<'profiles'>
+export type Organization = Tables<'organizations'>
 
 export type UserRole = Enums<'user_role'>
-export type TrialPhase = Enums<'trial_phase'>
-export type MoleculeType = Enums<'molecule_type'>
-export type SiteType = Enums<'site_type'>
-export type TrialStatus = Enums<'trial_status'>
-export type InquiryStatus = Enums<'inquiry_status'>
+export type OrganizationType = Enums<'organization_type'>
+export type ClinicStatus = Enums<'clinic_status'>
+export type ProjectStatus = Enums<'project_status'>
 export type MatchStatus = Enums<'match_status'>
-export type RequirementPriority = Enums<'requirement_priority'>
+export type InquiryStatus = Enums<'inquiry_status'>
 export type RequirementType = Enums<'requirement_type'>
+export type EquipmentCategory = Enums<'equipment_category'>
+export type AvailabilityType = Enums<'availability_type'>

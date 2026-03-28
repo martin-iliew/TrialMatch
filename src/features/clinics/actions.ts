@@ -10,22 +10,23 @@ const upsertClinicSchema = z.object({
   address: z.string().min(1, "Address is required"),
   description: z.string().optional(),
   contact_email: z.string().email("Invalid email address"),
-  phone: z.string().optional(),
+  contact_phone: z.string().optional(),
   website: z.string().optional(),
 })
 
 const addEquipmentSchema = z.object({
-  clinicId: z.string().min(1, "Clinic ID is required"),
+  clinicId: z.string().min(1),
   data: z.object({
-    equipment_type: z.string().min(1, "Equipment type is required"),
     name: z.string().min(1, "Name is required"),
+    category: z.enum(["imaging", "laboratory", "monitoring", "surgical", "rehabilitation", "diagnostic", "other"]),
+    model: z.string().optional(),
+    manufacturer: z.string().optional(),
     quantity: z.number().positive("Quantity must be positive"),
-    is_available: z.boolean(),
   }),
 })
 
 const addCertificationSchema = z.object({
-  clinicId: z.string().min(1, "Clinic ID is required"),
+  clinicId: z.string().min(1),
   data: z.object({
     certification_name: z.string().min(1, "Certification name is required"),
     issued_by: z.string().optional(),
@@ -34,11 +35,12 @@ const addCertificationSchema = z.object({
 })
 
 const upsertAvailabilitySchema = z.object({
-  clinicId: z.string().min(1, "Clinic ID is required"),
+  clinicId: z.string().min(1),
   data: z.object({
-    available_from: z.string().min(1, "Available from is required"),
-    available_to: z.string().min(1, "Available to is required"),
-    max_concurrent_trials: z.number().positive("Max concurrent trials must be positive"),
+    start_date: z.string().min(1, "Start date is required"),
+    end_date: z.string().min(1, "End date is required"),
+    type: z.enum(["available", "busy", "tentative"]).default("available"),
+    notes: z.string().optional(),
   }),
 })
 
@@ -50,7 +52,7 @@ export async function upsertClinic(data: {
   address: string
   description?: string
   contact_email: string
-  phone?: string
+  contact_phone?: string
   website?: string
 }) {
   const result = upsertClinicSchema.safeParse(data)
@@ -60,42 +62,63 @@ export async function upsertClinic(data: {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) throw new Error("Unauthorized")
 
-  const { phone, ...rest } = result.data
-  const { error } = await supabase
+  // Get the user's organization
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("organization_id")
+    .eq("id", user.id)
+    .single()
+
+  if (!profile?.organization_id) throw new Error("No organization found for this user")
+
+  // Check if clinic already exists for this org
+  const { data: existing } = await supabase
     .from("clinics")
-    .upsert({ ...rest, contact_phone: phone, user_id: user.id }, { onConflict: "user_id" })
+    .select("id")
+    .eq("organization_id", profile.organization_id)
+    .maybeSingle()
 
-  if (error) throw new Error(error.message)
-  revalidatePath("/clinic/profile")
-}
-
-export async function upsertSpecializations(clinicId: string, areaIds: string[]) {
-  const supabase = await createServerClient()
-
-  await supabase.from("clinic_specializations").delete().eq("clinic_id", clinicId)
-
-  if (areaIds.length > 0) {
+  if (existing) {
     const { error } = await supabase
-      .from("clinic_specializations")
-      .insert(areaIds.map((id) => ({ clinic_id: clinicId, therapeutic_area_id: id })))
+      .from("clinics")
+      .update(result.data)
+      .eq("id", existing.id)
+    if (error) throw new Error(error.message)
+  } else {
+    const { error } = await supabase
+      .from("clinics")
+      .insert({ ...result.data, organization_id: profile.organization_id })
     if (error) throw new Error(error.message)
   }
 
   revalidatePath("/clinic/profile")
 }
 
+export async function upsertSpecializations(clinicId: string, areaIds: string[]) {
+  const supabase = await createServerClient()
+
+  const { error } = await supabase
+    .from("clinics")
+    .update({ therapeutic_area_ids: areaIds })
+    .eq("id", clinicId)
+
+  if (error) throw new Error(error.message)
+  revalidatePath("/clinic/profile")
+}
+
 export async function addEquipment(clinicId: string, data: {
-  equipment_type: string
   name: string
+  category: "imaging" | "laboratory" | "monitoring" | "surgical" | "rehabilitation" | "diagnostic" | "other"
+  model?: string
+  manufacturer?: string
   quantity: number
-  is_available: boolean
 }) {
   const result = addEquipmentSchema.safeParse({ clinicId, data })
   if (!result.success) throw new Error(result.error.issues[0].message)
 
   const supabase = await createServerClient()
   const { error } = await supabase
-    .from("equipment")
+    .from("clinic_equipment")
     .insert({ ...result.data.data, clinic_id: result.data.clinicId })
   if (error) throw new Error(error.message)
   revalidatePath("/clinic/profile")
@@ -106,7 +129,7 @@ export async function deleteEquipment(id: string) {
   if (!parsed.success) throw new Error(parsed.error.issues[0].message)
 
   const supabase = await createServerClient()
-  const { error } = await supabase.from("equipment").delete().eq("id", id)
+  const { error } = await supabase.from("clinic_equipment").delete().eq("id", id)
   if (error) throw new Error(error.message)
   revalidatePath("/clinic/profile")
 }
@@ -137,10 +160,11 @@ export async function deleteCertification(id: string) {
   revalidatePath("/clinic/profile")
 }
 
-export async function upsertAvailability(clinicId: string, data: {
-  available_from: string
-  available_to: string
-  max_concurrent_trials: number
+export async function addAvailability(clinicId: string, data: {
+  start_date: string
+  end_date: string
+  type?: "available" | "busy" | "tentative"
+  notes?: string
 }) {
   const result = upsertAvailabilitySchema.safeParse({ clinicId, data })
   if (!result.success) throw new Error(result.error.issues[0].message)
@@ -148,7 +172,17 @@ export async function upsertAvailability(clinicId: string, data: {
   const supabase = await createServerClient()
   const { error } = await supabase
     .from("clinic_availability")
-    .upsert({ ...result.data.data, clinic_id: result.data.clinicId }, { onConflict: "clinic_id" })
+    .insert({ ...result.data.data, clinic_id: result.data.clinicId })
+  if (error) throw new Error(error.message)
+  revalidatePath("/clinic/profile")
+}
+
+export async function deleteAvailability(id: string) {
+  const parsed = deleteIdSchema.safeParse(id)
+  if (!parsed.success) throw new Error(parsed.error.issues[0].message)
+
+  const supabase = await createServerClient()
+  const { error } = await supabase.from("clinic_availability").delete().eq("id", id)
   if (error) throw new Error(error.message)
   revalidatePath("/clinic/profile")
 }

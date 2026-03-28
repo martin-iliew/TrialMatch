@@ -7,38 +7,44 @@ export default async function ClinicProfilePage() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect("/login")
 
-  const { data: clinic } = await supabase
-    .from("clinics")
-    .select("*")
-    .eq("user_id", user.id)
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("organization_id")
+    .eq("id", user.id)
     .single()
 
+  const clinicQuery = profile?.organization_id
+    ? supabase.from("clinics").select("*").eq("organization_id", profile.organization_id).maybeSingle()
+    : Promise.resolve({ data: null })
+
+  const [clinicRes, areasRes] = await Promise.all([
+    clinicQuery,
+    supabase.from("therapeutic_areas").select("*").order("name"),
+  ])
+
+  const clinic = clinicRes.data ?? null
   const clinicId = clinic?.id
 
-  const [equipmentRes, certsRes, availRes, areasRes, specsRes] = await Promise.all([
+  const [equipmentRes, certsRes, availRes] = await Promise.all([
     clinicId
-      ? supabase.from("equipment").select("*").eq("clinic_id", clinicId)
+      ? supabase.from("clinic_equipment").select("*").eq("clinic_id", clinicId)
       : Promise.resolve({ data: [] }),
     clinicId
       ? supabase.from("certifications").select("*").eq("clinic_id", clinicId)
       : Promise.resolve({ data: [] }),
     clinicId
-      ? supabase.from("clinic_availability").select("*").eq("clinic_id", clinicId).single()
-      : Promise.resolve({ data: null }),
-    supabase.from("therapeutic_areas").select("*").order("name"),
-    clinicId
-      ? supabase.from("clinic_specializations").select("therapeutic_area_id").eq("clinic_id", clinicId)
+      ? supabase.from("clinic_availability").select("*").eq("clinic_id", clinicId)
       : Promise.resolve({ data: [] }),
   ])
 
   return (
     <ClinicProfileTabs
-      clinic={clinic ?? null}
+      clinic={clinic}
       equipment={equipmentRes.data ?? []}
       certifications={certsRes.data ?? []}
-      availability={availRes.data ?? null}
+      availability={availRes.data ?? []}
       therapeuticAreas={areasRes.data ?? []}
-      selectedSpecializations={(specsRes.data ?? []).map((s) => s.therapeutic_area_id)}
+      selectedSpecializations={clinic?.therapeutic_area_ids ?? []}
     />
   )
 }
