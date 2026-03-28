@@ -28,6 +28,7 @@ Read those files for exact values. This document explains **how to use** the sys
 | Backgrounds | `bg-*` | `bg-default`, `bg-subtle`, `bg-muted`, `bg-inverse`, `bg-scrim-primary` |
 | Surfaces | `bg-surface-*` | `bg-surface-level-0` through `bg-surface-level-5` |
 | Status surfaces | `bg-surface-status-*` | `bg-surface-status-danger`, `-warning`, `-success`, `-info` |
+| Skeleton surface | `bg-surface-skeleton` | Loading placeholder fill — use via `<Skeleton>` component |
 | Text | `text-*` | `text-primary`, `text-secondary`, `text-tertiary`, `text-accent`, `text-inverse` |
 | Icons | `text-icon-*` | `text-icon-primary`, `text-icon-secondary`, `text-icon-tertiary` |
 | Status icons | `text-icon-status-*` | `text-icon-status-danger`, `-warning`, `-success`, `-info` |
@@ -58,6 +59,10 @@ Read those files for exact values. This document explains **how to use** the sys
 - **`bg-surface-status-info`** — informational callouts, onboarding hints
 
 Pair with matching `border-status-*` and `text-icon-status-*`.
+
+### Skeleton Surface
+
+- **`bg-surface-skeleton`** — loading skeleton placeholder fill. References `--black-50`. Always use the `<Skeleton>` component from `src/components/ui/skeleton.tsx` — never write raw `animate-pulse` divs with hardcoded background classes.
 
 ### Text
 
@@ -128,8 +133,11 @@ Responsiveness is handled by the CSS variables themselves (they change at breakp
 ### Rules
 
 - **Always use the React components** from `typography.tsx` — don't write raw `h1`–`h6`, `p`, `label`, or `code` tags in UI files
-- **Never use raw Tailwind text sizes** (`text-sm`, `text-base`, `text-lg`, `text-[...]`) — use the typography components instead
-- If you need the CSS class directly (rare — e.g., in a non-React context), use the class names from `typography.css` (`.heading-3`, `.body`, etc.)
+- **Never use raw Tailwind text sizes** (`text-sm`, `text-base`, `text-lg`, `text-xl`, `text-xs`, `text-[...]`) — use the typography components or CSS classes instead
+- **Never use raw font-weight utilities** (`font-semibold`, `font-bold`, `font-medium`, `font-light`, `font-[450]`) as className overrides on or alongside typography components — each CSS class already bundles the correct weight
+- **Never use `text-caption`, `text-body-small`, `text-title`** etc. — these are NOT valid tokens. Typography CSS class names (`caption`, `body-small`, `heading-6`) do NOT use the `text-` prefix. Only color tokens use `text-` (`text-primary`, `text-secondary`)
+- **Never use raw `tracking-[...]` values** — use token variable syntax instead: `tracking-[var(--tracking-sm)]`
+- If you need the CSS class directly (e.g., on a `<select>`, `<textarea>`, `<button>`, or any element whose tag you don't control), apply the class name without `text-` prefix: `className="body-small ..."` not `className="text-body-small ..."`
 - Each CSS class bundles `font-family`, `font-size`, `line-height`, `letter-spacing`, `font-weight`, and `font-variation-settings` — don't override individual properties unless intentional
 - Need a new typographic treatment? Add a token to `typography.css` and a component to `typography.tsx` — don't inline one-off classes
 
@@ -180,6 +188,19 @@ Use this table to pick the right token:
 
 **Hard rule:** never use raw Tailwind sizes (`text-sm`, `text-base`, `text-lg`, `text-[14px]`) or raw pixel/rem values. Always go through the token system — either via component, CSS class, or token variable.
 
+### Banned patterns (never write these)
+
+| Banned | Correct alternative |
+|---|---|
+| `text-sm`, `text-base`, `text-lg`, `text-xl`, `text-xs`, `text-[...]` | Use typography component or CSS class |
+| `font-semibold`, `font-bold`, `font-medium`, `font-light` | Remove — the typography CSS class sets the correct weight |
+| `font-[450]` in UI code | Remove — bundled in typography CSS classes |
+| `tracking-[0.18em]` (raw tracking) | Use `tracking-[var(--tracking-sm)]` or apply the CSS class |
+| `text-caption`, `text-body-small`, `text-title` | Apply CSS class without prefix: `caption`, `body-small`, `heading-7` |
+| `className="body-small"` on a typography component | Don't apply CSS class to a component that already applies it |
+| `<Body className="font-semibold">` | Use `<Heading9>` or the heading component with correct weight |
+| `<Caption className="font-semibold uppercase">` | Use `<Heading9 className="uppercase">` |
+
 ---
 
 ## Fonts
@@ -218,7 +239,7 @@ After every `npx shadcn add <component>`, remap all stock shadcn utilities befor
 
 1. **Find all banned Tailwind classes** (see table below) — replace every occurrence with the project semantic token equivalent.
 2. **Find all banned CSS variables** (see "Banned CSS variables" list above) — remove any local definitions; the variables must not exist in app code.
-3. **Delete every `dark:` prefixed class** — the token system handles dark mode via CSS variable swaps in `styles/tokens.css`. Tailwind `dark:` modifiers on individual classes are redundant and will produce conflicts.
+3. **Delete every `dark:` prefixed class** — this project is light-only. There are no dark mode token overrides.
 4. **`--radius-*` variables are safe** — they come from `styles/tokens.css` and are project tokens, not shadcn theme variables. Keep them.
 
 ### Find-and-replace table
@@ -253,7 +274,7 @@ After every `npx shadcn add <component>`, remap all stock shadcn utilities befor
 
 ### Note on `dark:` variants
 
-Every `dark:` prefixed class in a generated shadcn component must be deleted. The semantic tokens in `styles/tokens.css` already define `:root` (light) and `.dark` (dark) variable values — the dark mode swap happens at the CSS variable level, not at the Tailwind class level. Keeping `dark:` classes will override the token swap and produce broken styling.
+Every `dark:` prefixed class in a generated shadcn component must be deleted. This project does not support dark mode — only light theme tokens exist.
 
 ---
 
@@ -268,7 +289,7 @@ Every `dark:` prefixed class in a generated shadcn component must be deleted. Th
 - **Shadows:** `--shadow-xs` through `--shadow-2xl`, `--shadow-inset`
 - **Focus rings:** `--focus-ring`, `--focus-ring-danger`, `--focus-ring-success`
 - **Colors:** all primitive ramps (neutral, primary, accent, orange, green, red, blue, black-alpha, white-alpha)
-- **Semantic tokens:** light + dark mode mappings for backgrounds, surfaces, text, borders, icons, brand, accent, disabled, interactive states
+- **Semantic tokens:** light mode mappings for backgrounds, surfaces, text, borders, icons, brand, accent, disabled, interactive states
 
 ### In `src/styles/typography.css`
 
