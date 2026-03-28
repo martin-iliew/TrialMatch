@@ -4,7 +4,7 @@
 
 March 2026
 
-*Three user types: Visitor, Patient, Doctor | React + C# Stack | 36-Hour Build*
+*Three user types: Visitor, Sponsor/CRO, Clinic Admin | Next.js 15 + Supabase*
 
 ---
 
@@ -12,18 +12,21 @@ March 2026
 
 1. User Roles Overview
 2. Visitor Journeys (Not Logged In)
-   - 2.1 Browse & Search Trials
-   - 2.2 View Trial Details
+   - 2.1 Browse Registered Clinics
+   - 2.2 View Landing Page
    - 2.3 Contact Form (Lead Capture)
-3. Patient Journeys (Logged In)
-   - 3.1 Create / Edit Patient Profile
-   - 3.2 Submit Participation Request (Direct)
-   - 3.3 Send Trial to Doctor
-   - 3.4 Download Trial PDF
-   - 3.5 Track Request Status
-4. Doctor Journeys (Logged In)
-   - 4.1 Doctor Registration & Profile
-   - 4.2 Request Inbox & Approval Workflow
+3. Sponsor/CRO Journeys (Logged In)
+   - 3.1 Create a Trial Project
+   - 3.2 Add Requirements to a Trial Project
+   - 3.3 Run the Matching Algorithm
+   - 3.4 View Match Results
+   - 3.5 Send a Partnership Inquiry
+   - 3.6 Track Inquiry Status
+4. Clinic Admin Journeys (Logged In)
+   - 4.1 Register & Complete Clinic Profile
+   - 4.2 Manage Equipment Inventory
+   - 4.3 Manage Certifications & Availability
+   - 4.4 View & Respond to Incoming Inquiries
 5. Screen Inventory
 6. Hackathon Build Plan
 
@@ -33,199 +36,296 @@ March 2026
 
 | Role | Primary Goal | Core Actions |
 |------|-------------|--------------|
-| **Visitor** | Discover clinical trials and express interest without creating an account | Browse/search trials · View trial details · Submit contact form (lead capture) |
-| **Patient** | Find relevant trials, apply directly or send to a doctor, and track request outcomes | All visitor actions, plus: Create/edit patient profile · Submit participation request · Send trial to a doctor · Download trial PDF · Track request status |
-| **Doctor** | Review and act on patient trial requests | View request inbox · Review request details · Approve or decline requests |
+| **Visitor** | Discover the platform, browse registered clinics, express interest | View landing page · Browse clinic list · Submit contact form |
+| **Sponsor/CRO** | Find the best-fit clinics for a clinical trial and initiate outreach | Create trial project · Add requirements · Run matching · View ranked results · Send inquiries · Track status |
+| **Clinic Admin** | Be discoverable by sponsors, manage their profile, and respond to incoming inquiries | Register clinic profile · Manage equipment/certs/availability · View and respond to inquiries |
 
 ---
 
 ## 2. Visitor Journeys (Not Logged In)
 
-### 2.1 Browse & Search Trials
+### 2.1 Browse Registered Clinics
 
-Any visitor can browse and search trials without an account.
-
-| Step | Screen | User Action | System Response |
-|------|--------|-------------|-----------------|
-| 1 | Home / Trials | Visitor opens TrialMatch | Display list of all open trials as cards showing: title, condition(s), location (text), phase, status badge |
-| 2 | Home / Trials | Visitor uses the search bar with keyword input | Smart keyword search with condition autocomplete. As user types, matching condition names appear as suggestions. Results filter in real time. |
-| 3 | Home / Trials | Visitor applies filters: condition dropdown, phase selector, status toggle | Trial list updates; result count shown |
-| 4 | Home / Trials | Visitor clicks a trial card | Navigate to Trial Detail page (see 2.2) |
-
-*Preconditions: None. Public access, no login required.*
-
-### 2.2 View Trial Details
-
-Visitor views full trial information including plain-language eligibility criteria.
+Any visitor can browse the clinic network without an account.
 
 | Step | Screen | User Action | System Response |
 |------|--------|-------------|-----------------|
-| 1 | Trial Detail | Visitor arrives from trial list | Display: plain-language title, summary, eligibility criteria ("You may qualify if..."), phase, sponsor, location (text, e.g., "Sofia"), status, start/end dates |
-| 2 | Trial Detail | Visitor sees action buttons | Not logged in: show "Interested? Contact Us" button and a prompt to register for full features |
-| 3 | Trial Detail | Visitor clicks "Interested? Contact Us" | Open contact form modal (see 2.3) |
+| 1 | Public Clinic List | Visitor navigates to `/clinics` | Display cards for all registered clinics showing: name, city, top 3 specializations |
+| 2 | Public Clinic List | Visitor browses the list | No filtering or search required for MVP |
+| 3 | Public Clinic List | Visitor clicks a clinic card | Show limited profile view: name, city, address, specializations. Equipment and availability are hidden (visible only to logged-in sponsors) |
+| 4 | Public Clinic List | Visitor clicks "Get in Touch" in the navbar or page footer | Navigate to `/contact` |
 
-*Preconditions: None. Trial detail is publicly accessible.*
+*Preconditions: None. Postconditions: None — read-only public view.*
+
+### 2.2 View Landing Page
+
+The landing page explains the service to first-time visitors.
+
+| Step | Screen | User Action | System Response |
+|------|--------|-------------|-----------------|
+| 1 | Landing (`/`) | Visitor opens TrialMatch | Display value proposition, how-it-works steps, and dual call-to-action: "Join as Sponsor" and "Register Your Clinic" |
+| 2 | Landing | Visitor clicks "Join as Sponsor" or "Register Your Clinic" | Navigate to `/register` with the relevant role pre-selected |
+
+*Preconditions: None.*
 
 ### 2.3 Contact Form (Lead Capture)
 
-A non-logged-in visitor expresses interest in a trial by filling out a simple contact form. This is a lead capture — no account, no status tracking.
+A non-logged-in visitor expresses interest in the platform.
 
 | Step | Screen | User Action | System Response |
 |------|--------|-------------|-----------------|
-| 1 | Contact Modal | Visitor clicks "Interested? Contact Us" on a trial detail page | Modal opens with form: Name, Email, Condition (free text input), and the trial name pre-filled (read-only) |
-| 2 | Contact Modal | Visitor fills in name, email, and describes their condition | Basic validation: name required, email format check, condition text required |
-| 3 | Contact Modal | Visitor clicks Submit | Form submits to POST /api/contact. Stored as ContactInquiry in database. |
-| 4 | Confirmation | System confirms submission | Success message: "Thank you for your interest. A trial coordinator will review your inquiry." Modal closes. No further tracking available to the visitor. |
+| 1 | Landing or Clinic List | Visitor clicks "Get in Touch" | Navigate to `/contact` or open contact form |
+| 2 | Contact Form | Visitor fills in: Name, Email, Organization Type (Clinic / Sponsor / Other), Message | Basic validation: name required, email format, message required |
+| 3 | Contact Form | Visitor submits | Record stored as `contact_inquiries`. Success message: "Thank you — we'll be in touch." No tracking available to the visitor. |
 
-*Preconditions: None. Postconditions: ContactInquiry record created. No status tracking for the visitor.*
+*Preconditions: None. Postconditions: `contact_inquiries` row created.*
 
 ---
 
-## 3. Patient Journeys (Logged In)
+## 3. Sponsor/CRO Journeys (Logged In)
 
-### 3.1 Create / Edit Patient Profile
+### 3.1 Create a Trial Project
 
-The patient creates a profile so the system knows their conditions, age, and location. Required before submitting participation requests.
-
-| Step | Screen | User Action | System Response |
-|------|--------|-------------|-----------------|
-| 1 | Profile Page | Patient navigates to "/profile" (or is prompted when trying to submit a request without a profile) | If no profile exists: show empty form. If profile exists: show pre-filled form for editing. |
-| 2 | Profile Form | Patient fills in: date of birth, gender, city (text), medical notes (optional) | Form validates with Zod: DOB required, gender required, city required |
-| 3 | Profile Form | Patient selects conditions from multi-select dropdown (fetched from /api/conditions) | Condition catalog loaded. Patient can select multiple conditions (e.g., Type 2 Diabetes, Hypertension). |
-| 4 | Profile Form | Patient clicks Save | Profile created/updated via API. Success toast shown. Patient can now submit requests. |
-
-*Preconditions: Patient logged in. Postconditions: PatientProfile created/updated. Profile is required before submitting trial requests.*
-
-### 3.2 Submit Participation Request (Direct)
-
-The patient applies directly to a trial without involving a doctor. The request is stored with Pending status.
+The sponsor creates a trial project describing the study they need to place at clinics.
 
 | Step | Screen | User Action | System Response |
 |------|--------|-------------|-----------------|
-| 1 | Trial Detail | Patient clicks "Apply to This Trial" button | If no profile exists: redirect to /profile with message "Please complete your profile first." If profile exists: open request form modal. |
-| 2 | Request Modal | Patient fills in: optional notes ("I was diagnosed 2 years ago"), preferred site (if trial has multiple locations) | Form pre-fills patient name and condition from profile. Shows trial name (read-only). Disclaimer shown: "TrialMatch does not provide medical advice." |
-| 3 | Request Modal | Patient clicks Submit | Request created via POST /api/requests (no doctorId). Status set to Pending. Confirmation: "Your request has been submitted." |
+| 1 | My Projects (`/sponsor/projects`) | Sponsor clicks "New Trial Project" | Navigate to trial project creation form |
+| 2 | Project Form | Sponsor fills in: title, description, therapeutic area (select from catalog), phase (Phase 1–4), required patient count, start date, end date, geographic preference (city/region text) | Form validates with Zod: title required, therapeutic area required, dates required |
+| 3 | Project Form | Sponsor clicks "Create Project" | Project saved to `trial_projects` with status = Draft. Redirect to project detail page. |
+| 4 | Project Detail | Sponsor wants to correct information on a Draft project | Sponsor clicks "Edit Project" to return to the pre-filled creation form. Projects in Searching status are read-only for MVP — editing is not available once matching has been run. |
 
-*Preconditions: Patient logged in, profile complete. Postconditions: TrialRequest created with status=Pending, doctorId=null.*
+*Preconditions: Sponsor logged in. Postconditions: `trial_projects` row created with status=Draft.*
 
-### 3.3 Send Trial to Doctor
+### 3.2 Add Requirements to a Trial Project
 
-The patient sends a trial to a registered doctor for review. The doctor receives the request in their inbox and can approve or decline.
-
-| Step | Screen | User Action | System Response |
-|------|--------|-------------|-----------------|
-| 1 | Trial Detail | Patient clicks "Send to My Doctor" button | If no profile exists: redirect to /profile. If profile exists: open doctor search modal. |
-| 2 | Doctor Search | Patient types a doctor's name or clinic name in the search field | Live search against GET /api/doctors/search?q=. Results show: doctor name, clinic name, specialization, city. |
-| 3 | Doctor Search | Patient selects a doctor from the results | Selected doctor highlighted. Optional notes field appears ("Any additional context for your doctor"). |
-| 4 | Doctor Search | Patient clicks Send | Request created via POST /api/requests (with doctorId). Status set to Pending. Confirmation: "Trial details have been sent to Dr. [Name]. You can track the status in My Requests." |
-
-*Preconditions: Patient logged in, profile complete, doctor must be registered on TrialMatch. Postconditions: TrialRequest created with status=Pending, doctorId set. Request appears in doctor's inbox.*
-
-### 3.4 Download Trial PDF
-
-The patient downloads a one-page PDF summary of a trial to bring to an in-person GP appointment.
+The sponsor defines what a clinic must have in order to run this trial.
 
 | Step | Screen | User Action | System Response |
 |------|--------|-------------|-----------------|
-| 1 | Trial Detail | Patient clicks "Download PDF" button | Browser fetches GET /api/trials/{id}/pdf. Server generates a one-page PDF. |
-| 2 | Browser | PDF downloads automatically | PDF contains: trial title, plain-language summary, eligibility criteria, location, sponsor, contact information. Professional layout suitable for printing. |
+| 1 | Project Detail | Sponsor clicks "Add Requirement" | Open requirement form |
+| 2 | Requirement Form | Sponsor selects: type (Equipment / Certification / Specialization / Capacity), description/value, priority (Required / Preferred / NiceToHave) | Form validates: type and value required |
+| 3 | Requirement Form | Sponsor saves requirement | Requirement added to `trial_requirements`. Shown in the requirements list on the project detail page. |
+| 4 | Project Detail | Sponsor adds multiple requirements as needed | Each requirement appears as a row with type, value, and priority badge |
 
-*Preconditions: Patient logged in. Postconditions: PDF file downloaded to patient's device.*
+*Preconditions: Trial project exists with status=Draft. Postconditions: `trial_requirements` rows created.*
 
-### 3.5 Track Request Status
+### 3.3 Run the Matching Algorithm
 
-The patient views all their submitted requests and their current status.
+The sponsor triggers matching to find ranked clinics for their trial.
 
 | Step | Screen | User Action | System Response |
 |------|--------|-------------|-----------------|
-| 1 | My Requests | Patient navigates to "/requests" | Display list of all submitted requests |
-| 2 | My Requests | Patient views request list | Each request shows: trial name, date submitted, status badge (Pending / Approved / Declined), doctor name (if sent to doctor, otherwise "Direct Request") |
-| 3 | My Requests | Patient clicks a request | Expanded detail: full trial info, current status, doctor's note (if approved) or decline reason (if declined) |
+| 1 | Project Detail | Sponsor clicks "Find Matching Clinics" | POST to `/api/match` with `trial_project_id`. If the project already has previous match results, they are deleted and replaced with the new run. |
+| 2 | Loading | System processes the match | Hard filter: exclude clinics missing any Required criterion. Score remaining clinics across 5 dimensions. Persist results to `match_results`. |
+| 3 | Match Results (happy path) | Redirect to match results page | Show ranked list of clinics with overall score and per-dimension breakdown. Trial project status updated to Searching. |
+| 4 | Match Results (zero results) | No clinics pass the hard filter | Display empty state: "No clinics currently meet your required criteria. Consider relaxing your requirements." with a link back to edit requirements. Trial project status remains Draft. |
 
-*Preconditions: Patient logged in with at least one submitted request.*
+*Preconditions: Trial project has at least one requirement. At least one clinic is registered. Postconditions: `match_results` rows created (previous results for this project replaced). Trial project status = Searching on success, Draft on zero results.*
+
+> **MVP Status Machine:** `trial_projects.status` supports `Draft → Searching` only. Further states (Active, Closed, Completed) are post-MVP.
+
+### 3.4 View Match Results
+
+The sponsor reviews ranked clinics and their compatibility breakdown.
+
+| Step | Screen | User Action | System Response |
+|------|--------|-------------|-----------------|
+| 1 | Match Results (`/sponsor/projects/:id/matches`) | Sponsor views the results page | Display ranked clinic cards: overall score (0–100), score breakdown bars (therapeutic area, equipment, certifications, capacity, geography), clinic name and city |
+| 2 | Match Results | Sponsor clicks on a clinic card | Open clinic profile preview modal (rendered within `/sponsor/projects/:id/matches`): full profile, equipment, certifications, availability |
+| 3 | Match Results | Sponsor reviews breakdown | Color-coded scoring: green (strong match), yellow (partial), red (not met) |
+
+*Preconditions: Matching has been run. Postconditions: None — read-only view.*
+
+### 3.5 Send a Partnership Inquiry
+
+The sponsor contacts a matched clinic to express interest.
+
+| Step | Screen | User Action | System Response |
+|------|--------|-------------|-----------------|
+| 1 | Match Results | Sponsor views a clinic card they have not yet contacted | "Send Inquiry" button is active |
+| 2 | Match Results | Sponsor views a clinic card they have already contacted | "Send Inquiry" button is replaced by a non-interactive status badge showing the current inquiry state (e.g., "Inquiry Sent — Pending", "Accepted", "Declined") |
+| 3 | Match Results | Sponsor clicks "Send Inquiry" on an eligible clinic | Open inquiry compose form |
+| 4 | Inquiry Form | Sponsor writes a message to the clinic. Also includes: proposed timeline (pre-filled from trial dates), required patient count (pre-filled, read-only), and a free-text notes field. | Message field required. Trial name pre-filled (read-only). |
+| 5 | Inquiry Form | Sponsor clicks "Send" | Inquiry saved to `partnership_inquiries` with status=Pending. Match result status updated to InquirySent. Toast notification shown: "Inquiry sent to [Clinic Name]." Sponsor remains on the match results page. |
+
+*Preconditions: Match results exist. Clinic not already contacted for this trial. Postconditions: `partnership_inquiries` row created with status=Pending.*
+
+### 3.6 Track Inquiry Status
+
+The sponsor monitors the status of all outreach for a trial project.
+
+| Step | Screen | User Action | System Response |
+|------|--------|-------------|-----------------|
+| 1 | Project Detail | Sponsor navigates to their project | Inquiry status section shows all sent inquiries: clinic name, sent date, status badge (Pending / Accepted / Declined) |
+| 2 | Project Detail | Clinic has accepted an inquiry | Badge updates to Accepted (green). If the clinic included an acceptance message, it is shown below the badge. |
+| 3 | Project Detail | Clinic has declined an inquiry | Badge updates to Declined (red). The clinic's required decline reason is shown below the badge. |
+
+*Preconditions: At least one inquiry has been sent. Postconditions: None — read-only view.*
 
 ---
 
-## 4. Doctor Journeys (Logged In)
+## 4. Clinic Admin Journeys (Logged In)
 
-### 4.1 Doctor Registration & Profile
+### 4.1 Register & Complete Clinic Profile
 
-Doctors register on TrialMatch with a doctor role and create a profile that patients can search for.
-
-| Step | Screen | User Action | System Response |
-|------|--------|-------------|-----------------|
-| 1 | Register | Doctor registers and selects "Doctor" role | Account created with doctor role. Redirect to doctor profile setup. |
-| 2 | Doctor Profile | Doctor fills in: clinic name, specialization, city | Profile saved. Doctor is now searchable by patients. |
-
-*Preconditions: None. Postconditions: Doctor account created, DoctorProfile saved, doctor is searchable by patients. Note: For demo, 2–3 doctor accounts are pre-seeded.*
-
-### 4.2 Request Inbox & Approval Workflow
-
-The doctor's primary screen. Shows all patient requests sent to them, with the ability to approve or decline.
+The clinic admin creates their clinic's profile so it is discoverable by sponsors.
 
 | Step | Screen | User Action | System Response |
 |------|--------|-------------|-----------------|
-| 1 | Doctor Inbox | Doctor logs in | Redirect to /doctor/requests. Display tabbed view: Pending (default, highlighted if count > 0), Approved, Declined, All. |
-| 2 | Doctor Inbox | Doctor views Pending tab | List of pending requests showing: patient name, trial name, condition, date submitted. Sorted newest first. |
-| 3 | Request Detail | Doctor clicks a pending request | Full detail view: patient demographics (from profile), patient conditions, medical notes, trial details (summary, eligibility, location), patient's notes. |
-| 4a | Request Detail | Doctor clicks "Approve" | Optional note field (e.g., "I recommend proceeding with this trial"). Status changes to Approved. Patient sees updated status on their My Requests page. |
-| 4b | Request Detail | Doctor clicks "Decline" | Required reason field (e.g., "Your current medication conflicts with the trial protocol"). Status changes to Declined. Patient sees decline reason on their My Requests page. |
-| 5 | Doctor Inbox | Doctor returns to inbox | Pending count decremented. Processed request moves to Approved or Declined tab. |
+| 1 | Clinic Dashboard (`/clinic/profile`) | Clinic admin logs in for the first time | If no clinic profile exists: show empty setup form with completion indicator. If profile exists: show pre-filled form. |
+| 2 | Profile Form | Admin fills in: clinic name, city, address, description, contact email, contact phone, website | Form validates: name, city, contact email required |
+| 3 | Specializations | Admin selects therapeutic areas from multi-select (loaded from `therapeutic_areas` catalog) | Multi-select with search. At least one required. |
+| 4 | Profile Form | Admin clicks "Save Profile" | Profile saved to `clinics` + `clinic_specializations`. Profile completion indicator updates. |
 
-*Preconditions: Doctor logged in. Requests exist from patients. Status flow: Pending → Approved / Declined.*
+*Preconditions: Clinic admin logged in. Postconditions: `clinics` row created/updated, `clinic_specializations` rows updated.*
+
+### 4.2 Manage Equipment Inventory
+
+The clinic admin lists the equipment their clinic has available.
+
+| Step | Screen | User Action | System Response |
+|------|--------|-------------|-----------------|
+| 1 | Clinic Dashboard → Equipment tab | Admin navigates to Equipment | Shows current equipment list. "Add Equipment" button visible. |
+| 2 | Add Equipment | Admin clicks "Add Equipment" | Inline form: equipment type (free-text for MVP — no separate catalog table required), name, quantity, availability toggle |
+| 3 | Add Equipment | Admin fills form and saves | Row added to `equipment` table. Appears in list. |
+| 4 | Equipment List | Admin toggles availability on an item | `is_available` updated inline. |
+| 5 | Equipment List | Admin removes an item | Row deleted from `equipment`. |
+
+*Preconditions: Clinic profile exists. Postconditions: `equipment` rows created/updated/deleted.*
+
+> **MVP Note:** Equipment type is a free-text field. No `equipment_types` catalog table is required for MVP. Consistent naming across seed data is enforced manually.
+
+### 4.3 Manage Certifications & Availability
+
+The clinic admin adds their certifications and sets their trial capacity.
+
+| Step | Screen | User Action | System Response |
+|------|--------|-------------|-----------------|
+| 1 | Clinic Dashboard → Certifications tab | Admin adds a certification: name (e.g., GCP), issued by, valid until | Saved to `certifications` table |
+| 2 | Clinic Dashboard → Certifications tab | Admin removes a certification | Row deleted |
+| 3 | Clinic Dashboard → Availability tab | Admin sets: available from/to dates, max concurrent trials, current trial count | Saved to `clinic_availability`. Used by matching algorithm for capacity scoring. |
+
+*Preconditions: Clinic profile exists. Postconditions: `certifications` and `clinic_availability` rows updated.*
+
+### 4.4 View & Respond to Incoming Inquiries
+
+The clinic admin reviews partnership requests from sponsors and responds.
+
+| Step | Screen | User Action | System Response |
+|------|--------|-------------|-----------------|
+| 1 | Clinic Inbox (`/clinic/inquiries`) | Clinic admin navigates to inbox | List of all incoming inquiries: sponsor name, trial name, trial therapeutic area, sent date, status badge (Pending / Accepted / Declined) |
+| 2 | Inquiry Detail | Admin clicks an inquiry | Full detail: trial project info (title, description, phase, requirements, proposed timeline, required patient count), sponsor message and free-text notes |
+| 3a | Inquiry Detail | Admin clicks "Accept" | Optional acceptance message field. On confirm: inquiry status → Accepted. Sponsor sees Accepted badge and acceptance message (if provided) on their project page. |
+| 3b | Inquiry Detail | Admin clicks "Decline" | Required reason field (cannot submit blank). On confirm: inquiry status → Declined. Sponsor sees Declined badge and the reason on their project page. |
+
+*Preconditions: Clinic admin logged in. At least one inquiry exists. Postconditions: `partnership_inquiries.status` updated to Accepted or Declined.*
 
 ---
 
 ## 5. Screen Inventory
 
-| Role | Screen | Key Components | Roadmap Phase |
-|------|--------|---------------|---------------|
-| Public | Home / Trial List | Trial cards, filters, keyword search with autocomplete, pagination | Phase 7 |
-| Public | Trial Detail | Summary, eligibility, location text, role-aware action buttons | Phase 7 |
-| Public | Register | Email, password, role selector (Patient/Doctor) | Existing + extend |
-| Public | Login | Email, password | Existing |
-| Patient | Profile (/profile) | DOB, gender, city, condition multi-select, save button | Phase 6 |
-| Patient | Request Modal | Notes, preferred site, submit button | Phase 8 |
-| Patient | Doctor Search Modal | Search input, doctor result cards, select + send | Phase 8 |
-| Patient | Contact Form Modal | Name, email, condition text, trial pre-filled | Phase 7 |
-| Patient | My Requests (/requests) | Request list with status badges, click to expand | Phase 8 |
-| Doctor | Doctor Profile Setup | Clinic name, specialization, city | Phase 6 |
-| Doctor | Request Inbox (/doctor/requests) | Tabbed list: Pending/Approved/Declined/All | Phase 9 |
-| Doctor | Request Detail | Patient + trial info, approve/decline buttons | Phase 9 |
+| Role | Screen | Route | Key Components | Roadmap Phase |
+|------|--------|-------|---------------|---------------|
+| Public | Landing | `/` | Value prop, how-it-works, dual CTA | Phase 7 |
+| Public | Clinic Browse | `/clinics` | Clinic cards (name, city, specializations), "Get in Touch" in navbar/footer | Phase 7 |
+| Public | Contact Form | `/contact` | Name, email, org type, message | Phase 7 |
+| Auth | Register | `/register` | Email, password, name, role picker (Sponsor / Clinic Admin) | Phase 2 |
+| Auth | Login | `/login` | Email, password | Phase 2 |
+| Sponsor | My Projects | `/sponsor/projects` | Project list with status badges, "New Project" button | Phase 4 |
+| Sponsor | Project Detail | `/sponsor/projects/:id` | Requirements list, match status, inquiry status list with response messages | Phase 4 |
+| Sponsor | Match Results | `/sponsor/projects/:id/matches` | Ranked clinic cards, score breakdown, "Send Inquiry" button or status badge | Phase 6 |
+| Sponsor | Clinic Profile Modal | *(modal on `/sponsor/projects/:id/matches`)* | Full clinic detail, equipment, certs, availability | Phase 6 |
+| Clinic | Clinic Profile | `/clinic/profile` | Profile form, specializations multi-select, completion indicator | Phase 3 |
+| Clinic | Equipment Tab | `/clinic/profile` (tab) | Equipment list, add/remove/toggle availability, free-text equipment type | Phase 3 |
+| Clinic | Certifications & Availability Tab | `/clinic/profile` (tab) | Cert list, availability date range + capacity | Phase 3 |
+| Clinic | Inquiry Inbox | `/clinic/inquiries` | Inquiry list with status badges | Phase 6 |
+| Clinic | Inquiry Detail | `/clinic/inquiries/:id` | Trial + sponsor info (including timeline and patient count), accept/decline actions | Phase 6 |
 
-**Total: 12 screens (4 public, 5 patient, 3 doctor). Includes 3 modals (request, doctor search, contact form).**
+**Total: 14 screens (3 public, 2 auth, 5 sponsor, 4 clinic). Includes 1 modal (clinic profile preview).**
 
 ---
 
 ## 6. Hackathon Build Plan
 
-Aligned with ROADMAP.md phases. The demo story: a patient finds a trial, sends it to a doctor, and the doctor approves it.
+Aligned with ROADMAP.md phases. The demo story: a sponsor creates a trial, runs matching, finds a clinic, sends an inquiry, and the clinic accepts.
 
-### Phases 1–4: Backend (~16 hours)
+### Phase 1: DB Schema + Seed (~4 hours)
+1. Define all tables in `supabase/schema.sql`
+2. Seed `therapeutic_areas` catalog and demo accounts
+3. Seed **8–10 clinics with meaningfully distinct profiles** (mix of urban/rural, oncology specialists vs. generalists, high-capacity vs. boutique) to ensure matching produces varied, non-obvious results
+4. Seed 2–3 sample trial projects with different requirement sets
+5. Apply via `npx supabase db reset`
+6. Generate TypeScript types
 
-1. Phase 1: Domain entities, DB schema, seed data (trials, conditions, doctor accounts)
-2. Phase 2: API endpoints for trials, profiles, conditions, doctor search
-3. Phase 3: Request submission, doctor inbox, approve/decline, contact form
-4. Phase 4: PDF generation for trial summaries
+> **Note:** Equipment type is free-text for MVP — no `equipment_types` catalog table needed. Enforce consistent naming in seed data manually.
 
-### Phase 5: Shared Contracts (~2 hours)
+### Phase 2: Auth & Role-Based Routing (~2 hours)
+1. Register page with role picker (Sponsor / Clinic Admin)
+2. Login page
+3. Middleware for route protection by role
+4. Role-aware navbar (include "Get in Touch" link visible to all)
 
-1. TypeScript types, route constants, and service wrappers for all new endpoints
+### Phase 2.5: Landing Page Skeleton (~1 hour)
+1. Hero section with EUR 8M/day stat prominently displayed
+2. Dual CTA: "Join as Sponsor" / "Register Your Clinic"
+3. Basic how-it-works outline (can be fleshed out in Phase 7)
 
-### Phases 6–9: Frontend (~14 hours)
+> **Why here:** Judges and evaluators may open the URL cold before the full demo. A bare-bones landing page ensures there is always a coherent entry point, even if Phase 7 polish is cut due to time pressure.
 
-1. Phase 6: Patient profile form + doctor profile setup
-2. Phase 7: Trial list (search + filters), trial detail page, contact form modal
-3. Phase 8: Request submission, doctor search modal, My Requests page
-4. Phase 9: Doctor inbox with tabs, request detail with approve/decline
+### Phase 3: Clinic Profile Management (~3 hours)
+1. Clinic profile form with specializations (multi-select from `therapeutic_areas`)
+2. Equipment management tab (free-text type, name, quantity, availability toggle)
+3. Certifications and availability tab
 
-### Phase 10: Polish & Demo Prep (~4 hours)
+### Phase 4: Trial Project Management (~3 hours)
+1. Trial project creation form
+2. Edit flow for Draft projects (reuses creation form, pre-filled)
+3. Requirements builder (type, value, priority)
+4. My projects list + project detail page (includes inquiry status section with response messages)
 
-1. End-to-end testing of all three flows (visitor, patient, doctor)
-2. Loading states, error handling, responsive check
-3. Demo seed data validation
-4. Rehearse demo: search → trial detail → send to doctor → doctor approves
+### Phase 5: Matching Algorithm (~3 hours)
+1. `/api/match` route — hard filter + weighted scoring across 5 dimensions
+2. On re-run: delete existing `match_results` for the project before inserting new rows
+3. Zero-results handling: return empty array, keep project status as Draft
+4. Persist results to `match_results`
+5. Return ranked list with per-dimension breakdown
+
+### Phase 6: Match Results UI + Partnership Inquiries (~4 hours)
+1. Ranked match results page with color-coded score breakdown
+2. Clinic profile modal (rendered within match results page)
+3. "Send Inquiry" button → disabled/replaced with status badge once inquiry exists for that clinic
+4. Inquiry compose form (message, proposed timeline, patient count, notes)
+5. Toast notification on successful send
+6. Clinic admin inquiry inbox with full trial detail (including timeline and patient count)
+7. Accept (optional message) / Decline (required reason) actions
+8. Sponsor project detail reflects acceptance message and decline reason
+
+### Phase 7: Landing & Public Pages (~2 hours)
+1. Full landing page polish (value prop, how-it-works, dual CTA)
+2. Public clinic browse with "Get in Touch" in navbar/footer
+3. Contact form
+
+### Phase 8: Polish & Demo Prep (~3 hours)
+1. E2E flow: sponsor registers → creates project → runs match → sends inquiry → clinic accepts
+2. Loading states and error handling (including zero-results empty state)
+3. Responsive layout check
+4. Deploy to Vercel + Supabase cloud
 
 ---
 
-*This document is aligned with PROJECT.md, REQUIREMENTS.md, ROADMAP.md, and STATE.md as of March 2026. All features described here have corresponding requirements and roadmap tasks.*
+## Appendix: Key Decisions & Constraints
+
+| Decision | Rationale |
+|----------|-----------|
+| Equipment type is free-text (no catalog) | Avoids extra seed complexity for MVP; consistent naming enforced in seed data |
+| Matching re-run replaces previous results | Simpler state management; no result history needed for MVP |
+| Project editing locked after Searching status | Prevents requirement changes invalidating existing match results |
+| Landing page skeleton built at Phase 2.5 | Ensures a coherent entry point exists even if Phase 7 is cut |
+| 8–10 distinct seed clinics | Ensures matching produces varied results; fewer produces an unconvincing demo |
+| Acceptance message is optional; shown to sponsor | Symmetric with decline reason; surfaced in inquiry status section |
+| "Send Inquiry" replaced by status badge once sent | Prevents duplicate inquiries; clear visual feedback without silent failure |
+
+---
+
+*This document is aligned with PROJECT.md, REQUIREMENTS.md, ROADMAP.md as of March 2026.*

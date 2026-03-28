@@ -17,16 +17,15 @@ TrialMatch automates this. A CRO or pharma sponsor inputs their trial requiremen
 ## Context
 - **Event**: AUBG Hackathon 2026
 - **Scope**: MVP demo -- core matching flow, enough to demonstrate the concept end-to-end
-- **Platforms**: Web (React 19 + Vite) + Backend (ASP.NET Core 8)
-- **Existing foundation**: Auth system (JWT login, register, refresh, logout, user lookup) is fully built across backend, web, shared, and mobile
+- **Platform**: Web (Next.js 15 App Router + Supabase)
+- **Existing foundation**: Next.js 15 app scaffolded with Tailwind CSS v4, shadcn/ui, and Supabase project initialized
 
 ## What Already Exists
-- ASP.NET Core 8 backend with Clean Architecture (Domain, Application, Infrastructure, API layers)
-- MediatR + FluentValidation pipeline
-- EF Core + SQL Server persistence
-- JWT auth with rotating refresh tokens
-- React 19 web app with Tailwind CSS, shadcn/ui, React Query, React Hook Form, Zod
-- Shared TypeScript contracts layer
+- Next.js 15 app with App Router, TypeScript, Tailwind CSS v4, shadcn/ui
+- Supabase project initialized (local dev via Supabase CLI)
+- Supabase Auth configured (email/password, role stored in `profiles` table)
+- React Hook Form + Zod for form validation
+- TanStack Query (React Query) for server state
 - Mobile app (Expo) -- out of scope for MVP
 
 ## MVP Demo Goal

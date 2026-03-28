@@ -54,10 +54,10 @@
 - **R7.2** Stored as ContactInquiry -- no status tracking, no login required
 - **R7.3** Confirmation shown after submission
 
-## R8: Shared Contracts
-- **R8.1** Add all API types to `shared/api-types` (Clinic, TrialProject, TrialRequirement, MatchResult, PartnershipInquiry, etc.)
-- **R8.2** Add all endpoint routes to `shared/constants`
-- **R8.3** Add service wrappers to `shared/services` for all new endpoints
+## R8: TypeScript Types
+- **R8.1** Generate Supabase TypeScript types after schema is finalized: `npx supabase gen types typescript --local > web/types/supabase.ts`
+- **R8.2** Define local TypeScript types in `web/types/` for any non-database shapes (e.g. match scoring breakdown, API request/response bodies)
+- **R8.3** All data access goes through the Supabase client -- no custom API wrappers or service layers needed
 
 ## R9: Roles & Auth Updates
 - **R9.1** UserRole enum: Patient removed, add Sponsor and ClinicAdmin roles
