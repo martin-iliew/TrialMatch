@@ -20,7 +20,7 @@ WHERE e.id IS NULL;
 SELECT c.id, c.name, 'missing specializations' AS issue
 FROM clinics c
 LEFT JOIN clinic_specializations cs ON cs.clinic_id = c.id
-WHERE cs.therapeutic_area_id IS NULL;
+WHERE cs.clinic_id IS NULL;
 
 -- 4. Match result variation broken (all rank-1 results point to same clinic)
 -- Run AFTER executing /api/match for all 3 seed trial projects.
@@ -32,7 +32,8 @@ FROM (
   FROM match_results
   ORDER BY trial_project_id, score DESC
 ) top
-HAVING COUNT(DISTINCT top.clinic_id) = 1;
+HAVING COUNT(DISTINCT top.clinic_id) = 1
+  AND (SELECT COUNT(*) FROM trial_projects) >= 3;
 
 -- 5. Demo accounts with wrong or missing role
 SELECT id, role, 'wrong or missing role' AS issue
