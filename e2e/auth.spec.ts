@@ -48,6 +48,14 @@ test.describe('Login page', () => {
     await signUpLink.click()
     await page.waitForURL('/register')
   })
+
+  test('has link to forgot-password page', async ({ page }) => {
+    await page.goto('/login')
+    const forgotPasswordLink = page.getByRole('link', { name: 'Forgot password?' })
+    await expect(forgotPasswordLink).toBeVisible()
+    await forgotPasswordLink.click()
+    await page.waitForURL('/forgot-password')
+  })
 })
 
 test.describe('Register page', () => {
@@ -102,5 +110,35 @@ test.describe('Register page', () => {
     await expect(signInLink).toBeVisible()
     await signInLink.click()
     await page.waitForURL('/login')
+  })
+})
+
+test.describe('Password recovery pages', () => {
+  test('renders forgot-password form', async ({ page }) => {
+    await page.goto('/forgot-password')
+    await expect(page.getByRole('heading', { name: 'Reset your password' })).toBeVisible()
+    await expect(page.getByLabel('Email')).toBeVisible()
+    await expect(page.getByRole('button', { name: 'Send reset link' })).toBeVisible()
+    await expect(page.getByRole('link', { name: 'Back to sign in' })).toBeVisible()
+  })
+
+  test('renders reset-password fallback state without recovery params', async ({ page }) => {
+    await page.goto('/reset-password')
+    await expect(page.getByRole('heading', { name: 'Create a new password' })).toBeVisible()
+    await expect(
+      page.getByText('This reset link is missing recovery details. Request a new email and try again.')
+    ).toBeVisible()
+    await expect(page.getByRole('link', { name: 'Request a new link' })).toBeVisible()
+  })
+
+  test('shows a recovery message for legacy PKCE reset links', async ({ page }) => {
+    await page.goto('/reset-password?code=legacy-code&type=recovery')
+    await expect(page.getByRole('heading', { name: 'Create a new password' })).toBeVisible()
+    await expect(
+      page.getByText(
+        "This reset link was created with an older recovery flow and can't be completed here. Request a new reset email and use the newest link."
+      )
+    ).toBeVisible()
+    await expect(page.getByRole('link', { name: 'Request a new link' })).toBeVisible()
   })
 })

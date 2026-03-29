@@ -1,8 +1,8 @@
 "use client"
 
-import { useForm } from "react-hook-form"
+import { useState } from "react"
+import { useForm, useWatch } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 import { createClient } from "@/lib/supabase/client"
 import AuthFormShell from "@/components/common/AuthFormShell"
@@ -13,13 +13,12 @@ import { cn } from "@/lib/utils"
 import { registerSchema, type RegisterValues } from "@/features/auth/schemas"
 
 export default function RegisterPage() {
-  const router = useRouter()
-  const supabase = createClient()
+  const [supabase] = useState(() => createClient())
 
   const {
     register,
     handleSubmit,
-    watch,
+    control,
     setValue,
     formState: { errors, isSubmitting },
   } = useForm<RegisterValues>({
@@ -27,7 +26,7 @@ export default function RegisterPage() {
     defaultValues: { role: "sponsor" },
   })
 
-  const selectedRole = watch("role")
+  const selectedRole = useWatch({ control, name: "role" })
 
   async function onSubmit(values: RegisterValues) {
     const { data, error } = await supabase.auth.signUp({
@@ -49,24 +48,23 @@ export default function RegisterPage() {
 
     if (!data.session) {
       toast.success("Account created! Check your email to confirm before signing in.")
-      router.push("/login")
+      window.location.assign("/login")
       return
     }
 
     toast.success("Account created!")
-    router.refresh()
-    router.push(values.role === "sponsor" ? "/sponsor/projects" : "/clinic/profile")
+    window.location.assign(values.role === "sponsor" ? "/sponsor/projects" : "/clinic/profile")
   }
 
   return (
     <AuthFormShell
-      title="Create account"
+      title="Create your account"
       subtitle="Join TrialMatch to connect trials with clinics"
       footerLabel="Already have an account?"
       footerCta="Sign in"
       footerHref="/login"
     >
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+      <form noValidate onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         {/* Role picker */}
         <div className="space-y-1.5">
           <Label>I am a…</Label>

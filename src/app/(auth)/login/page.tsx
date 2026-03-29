@@ -1,5 +1,6 @@
 "use client"
 
+import Link from "next/link"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { toast } from "sonner"
@@ -31,7 +32,7 @@ export default function LoginPage() {
     }
 
     const role = data.user?.user_metadata.role as string
-    window.location.href = role === "sponsor" ? "/sponsor/projects" : "/clinic/profile"
+    window.location.assign(role === "sponsor" ? "/sponsor/projects" : "/clinic/profile")
   }
 
   return (
@@ -42,7 +43,7 @@ export default function LoginPage() {
       footerCta="Sign up"
       footerHref="/register"
     >
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+      <form noValidate onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <div className="space-y-1.5">
           <Label htmlFor="email">Email</Label>
           <Input
@@ -58,7 +59,12 @@ export default function LoginPage() {
         </div>
 
         <div className="space-y-1.5">
-          <Label htmlFor="password">Password</Label>
+          <div className="flex items-center justify-between gap-3">
+            <Label htmlFor="password">Password</Label>
+            <Link className="body-small text-secondary transition-colors hover:text-primary" href="/forgot-password">
+              Forgot password?
+            </Link>
+          </div>
           <Input
             id="password"
             type="password"
