@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation"
 import { createServerClient } from "@/lib/supabase/server"
+import Navbar from "@/components/layout/Navbar"
 
 export default async function AuthLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createServerClient()
@@ -11,8 +12,9 @@ export default async function AuthLayout({ children }: { children: React.ReactNo
   }
 
   return (
-    <main className="min-h-screen bg-default">
-      {children}
-    </main>
+    <div className="min-h-screen bg-default">
+      <Navbar />
+      <main>{children}</main>
+    </div>
   )
 }

@@ -22,13 +22,13 @@ export default async function Navbar() {
   const role = user?.user_metadata.role as string | undefined;
 
   return (
-    <nav className="border-b border-primary bg-surface-level-1 px-6 py-4">
+    <nav className="border-b border-primary bg-surface-level-1 px-3 py-4 sm:px-6">
       <div className="mx-auto flex max-w-7xl items-center justify-between">
         <Link href="/" className="heading-7 text-primary">
           TrialAxis
         </Link>
 
-        <div className="flex flex-wrap items-center gap-x-2 gap-y-2">
+        <div className="flex items-center gap-1 sm:gap-2">
           {isCRORole(role) && (
             <>
               <Link href="/cro/projects">
