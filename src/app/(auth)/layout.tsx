@@ -7,7 +7,7 @@ export default async function AuthLayout({ children }: { children: React.ReactNo
 
   if (user) {
     const role = user.user_metadata?.role as string | undefined
-    redirect(role === "clinic_admin" ? "/clinic/profile" : "/sponsor/projects")
+    redirect(role === "clinic_admin" ? "/clinic/profile" : "/cro/projects")
   }
 
   return (

@@ -33,13 +33,16 @@ export default async function MatchingPage({
   const { data: clinics } = await supabase
     .from("clinics")
     .select("id, name, city, country, patient_capacity, num_investigators")
-    .eq("status", "active")
 
   const totalClinics = clinics?.length ?? 0
   const criteriaChips = buildMatchingCriteriaChips(
     {
       title: project.title,
       phase: project.phase,
+      moleculeType:
+        "molecule_type" in project && typeof project.molecule_type === "string"
+          ? project.molecule_type.replace(/_/g, " ")
+          : null,
       geographicPreference:
         "geographic_preference" in project &&
         typeof project.geographic_preference === "string"
