@@ -14,9 +14,10 @@ import RunMatchButton from "./components/RunMatchButton"
 
 const statusColors: Record<string, string> = {
   draft: "bg-surface-level-2 text-secondary",
-  searching: "bg-surface-status-info text-icon-status-info",
-  matched: "bg-surface-status-success text-icon-status-success",
-  closed: "bg-surface-level-2 text-tertiary",
+  active: "bg-surface-status-info text-icon-status-info",
+  paused: "bg-surface-status-warning text-icon-status-warning",
+  completed: "bg-surface-status-success text-icon-status-success",
+  archived: "bg-surface-level-2 text-tertiary",
 }
 
 export default async function ProjectDetailPage({
@@ -39,9 +40,10 @@ export default async function ProjectDetailPage({
   const area = project.therapeutic_areas as { name: string } | null
 
   const inquiryStatusColors: Record<string, string> = {
-    pending: "bg-surface-status-warning text-icon-status-warning",
-    accepted: "bg-surface-status-success text-icon-status-success",
-    declined: "bg-surface-status-danger text-icon-status-danger",
+    open: "bg-surface-status-warning text-icon-status-warning",
+    in_progress: "bg-surface-status-info text-icon-status-info",
+    closed: "bg-surface-level-2 text-tertiary",
+    withdrawn: "bg-surface-level-2 text-tertiary",
   }
 
   return (
@@ -76,7 +78,7 @@ export default async function ProjectDetailPage({
         <div>
           <Caption className="text-secondary">Patient Count</Caption>
           <BodySmall className="font-medium">
-            {project.required_patient_count ?? "Not set"}
+            {project.target_enrollment ?? "Not set"}
           </BodySmall>
         </div>
         <div>
@@ -110,16 +112,6 @@ export default async function ProjectDetailPage({
                     <Caption className="text-secondary">
                       Sent {new Date(inq.created_at).toLocaleDateString()}
                     </Caption>
-                    {inq.response_message && (
-                      <Caption className="mt-1 text-secondary">
-                        &ldquo;{inq.response_message}&rdquo;
-                      </Caption>
-                    )}
-                    {inq.decline_reason && (
-                      <Caption className="mt-1 text-icon-status-danger">
-                        Reason: {inq.decline_reason}
-                      </Caption>
-                    )}
                   </div>
                   <Badge className={inquiryStatusColors[inq.status] ?? ""}>
                     {inq.status}
@@ -133,7 +125,7 @@ export default async function ProjectDetailPage({
 
       <div className="mt-8 flex gap-3">
         <RunMatchButton projectId={id} />
-        {(project.status === "searching" || project.status === "matched") && (
+        {project.status === "active" && (
           <Link href={`/sponsor/projects/${id}/matches`}>
             <Button variant="outline">View Match Results</Button>
           </Link>

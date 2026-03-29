@@ -8,9 +8,10 @@ import { Heading5, Body, BodySmall } from "@/components/ui/typography"
 
 const statusColors: Record<string, string> = {
   draft: "bg-surface-level-2 text-secondary",
-  searching: "bg-surface-status-info text-icon-status-info",
-  matched: "bg-surface-status-success text-icon-status-success",
-  closed: "bg-surface-level-2 text-tertiary",
+  active: "bg-surface-status-info text-icon-status-info",
+  paused: "bg-surface-status-warning text-icon-status-warning",
+  completed: "bg-surface-status-success text-icon-status-success",
+  archived: "bg-surface-level-2 text-tertiary",
 }
 
 export default async function ProjectsPage() {
