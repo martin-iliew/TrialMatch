@@ -11,6 +11,7 @@ import { Heading5, Heading6, Body, BodySmall, Caption } from "@/components/ui/ty
 import Link from "next/link"
 import RequirementsSection from "./components/RequirementsSection"
 import RunMatchButton from "./components/RunMatchButton"
+import ArchiveDeleteActions from "./components/ArchiveDeleteActions"
 
 const statusColors: Record<string, string> = {
   draft: "bg-surface-level-2 text-secondary",
@@ -124,12 +125,13 @@ export default async function ProjectDetailPage({
       )}
 
       <div className="mt-8 flex gap-3">
-        <RunMatchButton projectId={id} />
+        <RunMatchButton projectId={id} hasMatches={project.status === "active"} />
         {project.status === "active" && (
           <Link href={`/sponsor/projects/${id}/matches`}>
             <Button variant="outline">View Match Results</Button>
           </Link>
         )}
+        <ArchiveDeleteActions projectId={id} status={project.status} />
       </div>
     </div>
   )
