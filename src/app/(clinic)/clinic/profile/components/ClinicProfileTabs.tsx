@@ -41,6 +41,7 @@ const profileSchema = z.object({
   contact_email: z.string().email("Enter a valid email"),
   contact_phone: z.string().optional(),
   website: z.string().url("Enter a valid URL").optional().or(z.literal("")),
+  patient_capacity: z.number().int().min(1).optional(),
 })
 
 const equipmentSchema = z.object({
@@ -60,6 +61,7 @@ const availabilitySchema = z.object({
   start_date: z.string().min(1, "Start date is required"),
   end_date: z.string().min(1, "End date is required"),
   type: z.enum(["available", "busy", "tentative"]),
+  slots_available: z.number().int().min(1).optional(),
   notes: z.string().optional(),
 })
 
@@ -85,6 +87,7 @@ function ProfileTab({
         contact_email: clinic?.contact_email ?? "",
         contact_phone: clinic?.contact_phone ?? "",
         website: clinic?.website ?? "",
+        patient_capacity: clinic?.patient_capacity ?? undefined,
       },
     })
 
@@ -140,6 +143,19 @@ function ProfileTab({
         <Label htmlFor="website">Website</Label>
         <Input id="website" placeholder="https://clinic.com" {...register("website")} />
         {errors.website && <Caption className="text-icon-status-danger">{errors.website.message}</Caption>}
+      </div>
+      <div className="space-y-1.5">
+        <Label htmlFor="patient_capacity">Total patient capacity</Label>
+        <Input
+          id="patient_capacity"
+          type="number"
+          min={1}
+          placeholder="e.g. 50"
+          {...register("patient_capacity", { valueAsNumber: true })}
+        />
+        {errors.patient_capacity && (
+          <Caption className="text-icon-status-danger">{errors.patient_capacity.message}</Caption>
+        )}
       </div>
 
       {therapeuticAreas.length > 0 && (
@@ -367,6 +383,7 @@ function CertsAvailabilityTab({
       start_date: values.start_date,
       end_date: values.end_date,
       type: values.type,
+      slots_available: values.slots_available ?? null,
       notes: values.notes ?? null,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
@@ -453,7 +470,13 @@ function CertsAvailabilityTab({
               <li key={a.id} className="flex items-center justify-between rounded-xl border border-primary px-4 py-3">
                 <div>
                   <BodySmall className="font-medium text-primary">{a.start_date} → {a.end_date}</BodySmall>
-                  <Caption className="text-secondary capitalize">{a.type}{a.notes ? ` · ${a.notes}` : ""}</Caption>
+                  <Caption className="text-secondary capitalize">
+                    {a.type}
+                    {a.slots_available != null
+                      ? ` · ${a.slots_available} patient slots`
+                      : " · slots not specified"}
+                    {a.notes ? ` · ${a.notes}` : ""}
+                  </Caption>
                 </div>
                 <button
                   onClick={() => handleDeleteAvailability(a.id)}

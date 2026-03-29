@@ -103,6 +103,7 @@ export type Database = {
           end_date: string
           id: string
           notes: string | null
+          slots_available: number | null
           start_date: string
           type: Database["public"]["Enums"]["availability_type"]
           updated_at: string
@@ -113,6 +114,7 @@ export type Database = {
           end_date: string
           id?: string
           notes?: string | null
+          slots_available?: number | null
           start_date: string
           type?: Database["public"]["Enums"]["availability_type"]
           updated_at?: string
@@ -123,6 +125,7 @@ export type Database = {
           end_date?: string
           id?: string
           notes?: string | null
+          slots_available?: number | null
           start_date?: string
           type?: Database["public"]["Enums"]["availability_type"]
           updated_at?: string
@@ -543,6 +546,7 @@ export type Database = {
           created_at: string
           description: string | null
           end_date: string | null
+          geographic_preference: string | null
           id: string
           organization_id: string
           phase: string | null
@@ -557,6 +561,7 @@ export type Database = {
           created_at?: string
           description?: string | null
           end_date?: string | null
+          geographic_preference?: string | null
           id?: string
           organization_id: string
           phase?: string | null
@@ -571,6 +576,7 @@ export type Database = {
           created_at?: string
           description?: string | null
           end_date?: string | null
+          geographic_preference?: string | null
           id?: string
           organization_id?: string
           phase?: string | null
