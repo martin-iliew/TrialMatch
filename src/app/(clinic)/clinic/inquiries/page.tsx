@@ -4,7 +4,7 @@ import { getClinicForUser, getInquiriesForClinic } from "@/features/inquiries/qu
 import Link from "next/link"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Heading5, Heading9, BodySmall, Caption } from "@/components/ui/typography"
+import { Heading5, Heading9, Body, BodySmall, Caption } from "@/components/ui/typography"
 
 const statusColors: Record<string, string> = {
   open: "bg-surface-status-warning text-icon-status-warning",
