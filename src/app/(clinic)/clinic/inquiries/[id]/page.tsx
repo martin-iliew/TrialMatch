@@ -7,9 +7,10 @@ import { Heading5, BodySmall, Caption } from "@/components/ui/typography"
 import InquiryResponseForm from "./components/InquiryResponseForm"
 
 const statusColors: Record<string, string> = {
-  pending: "bg-surface-status-warning text-icon-status-warning",
-  accepted: "bg-surface-status-success text-icon-status-success",
-  declined: "bg-surface-status-danger text-icon-status-danger",
+  open: "bg-surface-status-warning text-icon-status-warning",
+  in_progress: "bg-surface-status-info text-icon-status-info",
+  closed: "bg-surface-level-2 text-tertiary",
+  withdrawn: "bg-surface-level-2 text-tertiary",
 }
 
 export default async function InquiryDetailPage({
@@ -32,7 +33,7 @@ export default async function InquiryDetailPage({
     title: string
     description: string | null
     phase: string | null
-    required_patient_count: number | null
+    target_enrollment: number | null
     start_date: string | null
     end_date: string | null
     geographic_preference: string | null
@@ -74,10 +75,10 @@ export default async function InquiryDetailPage({
                 <BodySmall className="font-medium">Phase {trial.phase}</BodySmall>
               </div>
             )}
-            {trial.required_patient_count && (
+            {trial.target_enrollment && (
               <div>
                 <Caption className="text-secondary">Patient Count</Caption>
-                <BodySmall className="font-medium">{trial.required_patient_count}</BodySmall>
+                <BodySmall className="font-medium">{trial.target_enrollment}</BodySmall>
               </div>
             )}
             {trial.geographic_preference && (
@@ -105,17 +106,20 @@ export default async function InquiryDetailPage({
 
       <div className="mb-6 rounded-2xl border border-primary p-4">
         <Caption className="mb-2 font-semibold uppercase text-secondary">Message from Sponsor</Caption>
-        <BodySmall>{inquiry.message}</BodySmall>
+        <BodySmall>{inquiry.messages[0]?.content ?? inquiry.subject}</BodySmall>
       </div>
 
-      {inquiry.status === "pending" ? (
+      {inquiry.status === "open" ? (
         <InquiryResponseForm inquiryId={inquiry.id} />
       ) : (
         <div className="rounded-2xl border border-primary p-4">
           <Caption className="mb-2 font-semibold uppercase text-secondary">Your Response</Caption>
           <Badge className={statusColors[inquiry.status] ?? ""}>{inquiry.status}</Badge>
-          {inquiry.response_message && <BodySmall className="mt-2">{inquiry.response_message}</BodySmall>}
-          {inquiry.decline_reason && <BodySmall className="mt-2 text-icon-status-danger">Reason: {inquiry.decline_reason}</BodySmall>}
+          {inquiry.messages
+            .filter((m) => m.sender_id !== inquiry.created_by)
+            .map((m) => (
+              <BodySmall key={m.id} className="mt-2">{m.content}</BodySmall>
+            ))}
         </div>
       )}
     </div>
