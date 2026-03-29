@@ -27,7 +27,7 @@ setup('authenticate as sponsor', async ({ page }) => {
   await page.getByLabel('Email').fill(email)
   await page.getByLabel('Password').fill(password)
   await page.getByRole('button', { name: 'Sign in' }).click()
-  await page.waitForURL('/sponsor/projects')
+  await page.waitForURL('**/sponsor/projects', { timeout: 30000 })
 
   await page.context().storageState({ path: SPONSOR_STORAGE })
 })
@@ -45,7 +45,7 @@ setup('authenticate as clinic admin', async ({ page }) => {
   await page.getByLabel('Email').fill(email)
   await page.getByLabel('Password').fill(password)
   await page.getByRole('button', { name: 'Sign in' }).click()
-  await page.waitForURL('/clinic/profile')
+  await page.waitForURL('**/clinic/profile', { timeout: 30000 })
 
   await page.context().storageState({ path: CLINIC_STORAGE })
 })

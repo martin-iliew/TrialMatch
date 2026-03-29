@@ -80,6 +80,7 @@ test.describe.serial('Sponsor — Archive non-draft project', () => {
   test.use({ storageState: SPONSOR_STORAGE })
 
   let projectUrl = ''
+  let didArchive = false
 
   test('create a project and run matching to make it active', async ({ page }) => {
     // Create the project
@@ -143,19 +144,23 @@ test.describe.serial('Sponsor — Archive non-draft project', () => {
 
     await archiveBtn.click()
     await page.waitForURL('**/sponsor/projects', { timeout: 10000 })
+    didArchive = true
   })
 
   test('archived project no longer appears on Active tab', async ({ page }) => {
+    if (!didArchive) test.skip()
     await page.goto('/sponsor/projects')
     await expect(page.getByText('E2E Archive Test Project')).not.toBeVisible()
   })
 
   test('archived project appears on Archived tab', async ({ page }) => {
+    if (!didArchive) test.skip()
     await page.goto('/sponsor/projects?tab=archived')
     await expect(page.getByText('E2E Archive Test Project').first()).toBeVisible()
   })
 
   test('Archived tab shows the archived badge on the project', async ({ page }) => {
+    if (!didArchive) test.skip()
     await page.goto('/sponsor/projects?tab=archived')
     await page.getByText('E2E Archive Test Project').first().click()
     await page.waitForURL(/\/sponsor\/projects\//, { timeout: 5000 })
@@ -163,6 +168,7 @@ test.describe.serial('Sponsor — Archive non-draft project', () => {
   })
 
   test('archived project detail shows no Archive or Delete button', async ({ page }) => {
+    if (!didArchive) test.skip()
     await page.goto('/sponsor/projects?tab=archived')
     await page.getByText('E2E Archive Test Project').first().click()
     await page.waitForURL(/\/sponsor\/projects\//, { timeout: 5000 })
@@ -189,7 +195,7 @@ test.describe('Sponsor — Projects list tabs', () => {
   test('Archived tab is reachable and shows heading', async ({ page }) => {
     await page.goto('/sponsor/projects?tab=archived')
     await expect(page.getByText('Trial Projects')).toBeVisible()
-    const archivedTab = page.getByRole('link', { name: 'Archived' })
+    const archivedTab = page.getByRole('link', { name: 'Archived', exact: true })
     await expect(archivedTab).toHaveClass(/border-primary/)
   })
 

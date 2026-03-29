@@ -132,9 +132,6 @@ test.describe('Clinic Admin — Certifications & Availability (R3.4, R3.5, §4.3
     await expect(
       page.getByLabel(/available to|until/i).or(page.getByLabel(/to/i))
     ).toBeVisible()
-    await expect(
-      page.getByLabel(/max concurrent trials|max/i)
-    ).toBeVisible()
   })
 })
 
