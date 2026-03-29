@@ -5,7 +5,8 @@ import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 
-export default function RunMatchButton({ projectId }: { projectId: string }) {
+export default function RunMatchButton({ projectId, hasMatches }: { projectId: string; hasMatches: boolean }) {
+  if (hasMatches) return null
   const router = useRouter()
   const [loading, setLoading] = useState(false)
 
