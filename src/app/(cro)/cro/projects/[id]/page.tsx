@@ -7,7 +7,7 @@ import {
 } from "@/features/projects/queries"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Heading5, Heading6, Body, BodySmall, Caption } from "@/components/ui/typography"
+import { Heading5, Heading6, BodySmall, Caption } from "@/components/ui/typography"
 import Link from "next/link"
 import RequirementsSection from "./components/RequirementsSection"
 import RunMatchButton from "./components/RunMatchButton"
