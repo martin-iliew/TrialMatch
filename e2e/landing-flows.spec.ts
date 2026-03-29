@@ -5,9 +5,9 @@ import { test, expect } from '@playwright/test'
  * No auth required.
  */
 test.describe('Landing page CTAs', () => {
-  test('has "Join as Sponsor" CTA that navigates to /register', async ({ page }) => {
+  test('has "Join as CRO" CTA that navigates to /register', async ({ page }) => {
     await page.goto('/')
-    const cta = page.getByRole('link', { name: /join as sponsor/i })
+    const cta = page.getByRole('link', { name: /join as cro/i })
     await expect(cta).toBeVisible()
     await cta.click()
     await page.waitForURL(/\/register/)
@@ -28,9 +28,9 @@ test.describe('Landing page CTAs', () => {
     await expect(howItWorks).toBeVisible()
   })
 
-  test('displays the EUR 8M/day stat', async ({ page }) => {
+  test('displays the EUR 500K/day stat', async ({ page }) => {
     await page.goto('/')
-    await expect(page.getByText(/8/)).toBeVisible()
+    await expect(page.getByText(/500K/)).toBeVisible()
   })
 })
 
