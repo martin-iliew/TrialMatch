@@ -117,11 +117,15 @@ export async function addEquipment(clinicId: string, data: {
   if (!result.success) throw new Error(result.error.issues[0].message)
 
   const supabase = await createServerClient()
-  const { error } = await supabase
+  const { data: newItem, error } = await supabase
     .from("clinic_equipment")
     .insert({ ...result.data.data, clinic_id: result.data.clinicId })
+    .select()
+    .single()
   if (error) throw new Error(error.message)
+  if (!newItem) throw new Error("Failed to insert equipment")
   revalidatePath("/clinic/profile")
+  return newItem
 }
 
 export async function deleteEquipment(id: string) {
@@ -143,11 +147,15 @@ export async function addCertification(clinicId: string, data: {
   if (!result.success) throw new Error(result.error.issues[0].message)
 
   const supabase = await createServerClient()
-  const { error } = await supabase
+  const { data: newItem, error } = await supabase
     .from("certifications")
     .insert({ ...result.data.data, clinic_id: result.data.clinicId })
+    .select()
+    .single()
   if (error) throw new Error(error.message)
+  if (!newItem) throw new Error("Failed to insert certification")
   revalidatePath("/clinic/profile")
+  return newItem
 }
 
 export async function deleteCertification(id: string) {
@@ -170,11 +178,15 @@ export async function addAvailability(clinicId: string, data: {
   if (!result.success) throw new Error(result.error.issues[0].message)
 
   const supabase = await createServerClient()
-  const { error } = await supabase
+  const { data: newItem, error } = await supabase
     .from("clinic_availability")
     .insert({ ...result.data.data, clinic_id: result.data.clinicId })
+    .select()
+    .single()
   if (error) throw new Error(error.message)
+  if (!newItem) throw new Error("Failed to insert availability")
   revalidatePath("/clinic/profile")
+  return newItem
 }
 
 export async function deleteAvailability(id: string) {

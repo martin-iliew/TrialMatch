@@ -59,7 +59,7 @@ const certSchema = z.object({
 const availabilitySchema = z.object({
   start_date: z.string().min(1, "Start date is required"),
   end_date: z.string().min(1, "End date is required"),
-  type: z.enum(["available", "busy", "tentative"]).default("available"),
+  type: z.enum(["available", "busy", "tentative"]),
   notes: z.string().optional(),
 })
 
@@ -180,7 +180,7 @@ function ProfileTab({
                 setSavingSpecs(false)
               }}
             >
-              {savingSpecs ? "Saving…" : "Save specializations"}
+              {savingSpecs ? "Saving…" : "Update specializations"}
             </Button>
           )}
         </div>
@@ -209,11 +209,27 @@ function EquipmentTab({
 
   async function onAdd(values: z.infer<typeof equipmentSchema>) {
     if (!clinicId) { toast.error("Save your profile first"); return }
+    const tempId = `temp-${Date.now()}`
+    const optimisticItem = {
+      id: tempId,
+      clinic_id: clinicId,
+      name: values.name,
+      category: values.category,
+      model: values.model ?? null,
+      manufacturer: null,
+      quantity: values.quantity,
+      notes: null,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    } as Tables<"clinic_equipment">
+    setEquipment((prev) => [...prev, optimisticItem])
+    reset()
     try {
-      await addEquipment(clinicId, values)
+      const newItem = await addEquipment(clinicId, values)
+      setEquipment((prev) => prev.map((e) => (e.id === tempId ? newItem : e)))
       toast.success("Equipment added")
-      reset()
     } catch (e) {
+      setEquipment((prev) => prev.filter((e) => e.id !== tempId))
       toast.error(e instanceof Error ? e.message : "Failed to add")
     }
   }
@@ -274,8 +290,8 @@ function EquipmentTab({
         </div>
         <div className="grid grid-cols-2 gap-3">
           <div className="space-y-1.5">
-            <Label htmlFor="model">Model</Label>
-            <Input id="model" placeholder="Optional" {...register("model")} />
+            <Label htmlFor="model">Type</Label>
+            <Input id="model" placeholder="e.g. MRI" {...register("model")} />
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="quantity">Quantity</Label>
@@ -310,11 +326,24 @@ function CertsAvailabilityTab({
 
   async function onAddCert(values: z.infer<typeof certSchema>) {
     if (!clinicId) { toast.error("Save your profile first"); return }
+    const tempId = `temp-${Date.now()}`
+    const optimisticItem = {
+      id: tempId,
+      clinic_id: clinicId,
+      certification_name: values.certification_name,
+      issued_by: values.issued_by ?? null,
+      valid_until: values.valid_until ?? null,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    } as Tables<"certifications">
+    setCertifications((prev) => [...prev, optimisticItem])
+    certForm.reset()
     try {
-      await addCertification(clinicId, values)
+      const newItem = await addCertification(clinicId, values)
+      setCertifications((prev) => prev.map((c) => (c.id === tempId ? newItem : c)))
       toast.success("Certification added")
-      certForm.reset()
     } catch (e) {
+      setCertifications((prev) => prev.filter((c) => c.id !== tempId))
       toast.error(e instanceof Error ? e.message : "Failed to add")
     }
   }
@@ -331,11 +360,25 @@ function CertsAvailabilityTab({
 
   async function onAddAvailability(values: z.infer<typeof availabilitySchema>) {
     if (!clinicId) { toast.error("Save your profile first"); return }
+    const tempId = `temp-${Date.now()}`
+    const optimisticItem = {
+      id: tempId,
+      clinic_id: clinicId,
+      start_date: values.start_date,
+      end_date: values.end_date,
+      type: values.type,
+      notes: values.notes ?? null,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    } as Tables<"clinic_availability">
+    setAvailability((prev) => [...prev, optimisticItem])
+    availForm.reset()
     try {
-      await addAvailability(clinicId, values)
+      const newItem = await addAvailability(clinicId, values)
+      setAvailability((prev) => prev.map((a) => (a.id === tempId ? newItem : a)))
       toast.success("Availability window added")
-      availForm.reset()
     } catch (e) {
+      setAvailability((prev) => prev.filter((a) => a.id !== tempId))
       toast.error(e instanceof Error ? e.message : "Failed to save")
     }
   }
@@ -427,14 +470,14 @@ function CertsAvailabilityTab({
           <BodySmall className="font-medium text-primary">Add availability window</BodySmall>
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
-              <Label htmlFor="start_date">Start date</Label>
+              <Label htmlFor="start_date">From</Label>
               <Input id="start_date" type="date" {...availForm.register("start_date")} />
               {availForm.formState.errors.start_date && (
                 <Caption className="text-icon-status-danger">{availForm.formState.errors.start_date.message}</Caption>
               )}
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="end_date">End date</Label>
+              <Label htmlFor="end_date">Until</Label>
               <Input id="end_date" type="date" {...availForm.register("end_date")} />
               {availForm.formState.errors.end_date && (
                 <Caption className="text-icon-status-danger">{availForm.formState.errors.end_date.message}</Caption>
@@ -527,6 +570,8 @@ export default function ClinicProfileTabs({
         {tabs.map((tab) => (
           <button
             key={tab}
+            role="tab"
+            aria-selected={activeTab === tab}
             onClick={() => setActiveTab(tab)}
             className={cn(
               "-mb-px border-b-2 px-4 py-2.5 text-body-small font-medium transition-colors",
