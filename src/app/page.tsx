@@ -13,7 +13,6 @@ import {
   Body,
   BodySmall,
 } from "@/components/ui/typography";
-import { ClipboardList, Cpu, Handshake } from "lucide-react";
 import { ClipboardList, Cpu, Handshake, ArrowUpRight } from "lucide-react";
 
 function isCRORole(role: string | undefined) {
@@ -165,7 +164,6 @@ export default async function Home() {
               with relevant trials automatically. No cold outreach — CRO teams
               come to you.
             </Body>
->>>>>>> 431bb34 (refactor: polish landing and shell ui)
             <Link href="/register?role=clinic_admin">
               <Button variant="outline" size="lg">
                 Register Your Clinic
