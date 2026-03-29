@@ -81,7 +81,7 @@ function scoreAvailability(cp: ClinicProfile, trial: TrialProject): number {
 
   // Find the best (highest) slots_available across overlapping windows
   const slots = overlappingWindows
-    .map((a) => (a as typeof a & { slots_available?: number | null }).slots_available)
+    .map((a) => a.slots_available)
     .filter((s): s is number => s != null && s > 0)
 
   if (slots.length === 0) {
