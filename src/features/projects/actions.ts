@@ -127,3 +127,70 @@ export async function deleteRequirement(id: string, projectId: string) {
   revalidatePath(`/sponsor/projects/${projectId}`)
   return { error: null }
 }
+
+export async function archiveProject(projectId: string) {
+  if (!projectId) return { error: "Invalid project ID" }
+
+  const supabase = await createServerClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: "Unauthorized" }
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("organization_id")
+    .eq("id", user.id)
+    .single()
+
+  const { data: project } = await supabase
+    .from("trial_projects")
+    .select("id, status")
+    .eq("id", projectId)
+    .eq("organization_id", profile?.organization_id ?? "")
+    .single()
+
+  if (!project) return { error: "Project not found" }
+  if (project.status === "draft") return { error: "Draft projects cannot be archived — delete them instead" }
+  if (project.status === "archived") return { error: "Project is already archived" }
+
+  const { error } = await supabase
+    .from("trial_projects")
+    .update({ status: "archived" })
+    .eq("id", projectId)
+
+  if (error) return { error: error.message }
+  revalidatePath("/sponsor/projects")
+  return { error: null }
+}
+
+export async function deleteProject(projectId: string) {
+  if (!projectId) return { error: "Invalid project ID" }
+
+  const supabase = await createServerClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: "Unauthorized" }
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("organization_id")
+    .eq("id", user.id)
+    .single()
+
+  const { data: project } = await supabase
+    .from("trial_projects")
+    .select("id, status")
+    .eq("id", projectId)
+    .eq("organization_id", profile?.organization_id ?? "")
+    .single()
+
+  if (!project) return { error: "Project not found" }
+  if (project.status !== "draft") return { error: "Only draft projects can be deleted" }
+
+  const { error } = await supabase
+    .from("trial_projects")
+    .delete()
+    .eq("id", projectId)
+
+  if (error) return { error: error.message }
+  revalidatePath("/sponsor/projects")
+  return { error: null }
+}
